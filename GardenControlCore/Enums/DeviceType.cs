@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GardenControlServices.Interfaces
+namespace GardenControlCore.Enums
 {
-    public interface ISettingsService
+    public enum DeviceType
     {
-        
+        Relay,
+        DS18B20
     }
 }
