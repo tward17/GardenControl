@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace GardenControlCore.Models
 {
-    class AppSetting
+    public class AppSetting
     {
+        public int ConfigId { get; init; }
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 }

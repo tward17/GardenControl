@@ -1,7 +1,9 @@
+using AutoMapper;
 using GardenControlRepositories;
 using GardenControlRepositories.Interfaces;
 using GardenControlServices;
 using GardenControlServices.Interfaces;
+using GardenControlServices.MapProfiles;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,6 +33,14 @@ namespace GardenControlApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AppSettingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+
+            services.AddSingleton(mapper);
             services.AddDbContext<GardenControlContext>(
                options => options.UseSqlite(Configuration.GetConnectionString("GardenControlConnection"), builder =>
                    builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)

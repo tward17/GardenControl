@@ -59,7 +59,7 @@ namespace GardenControlRepositories
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
 
             var appSettingEntity = await _context.AppSettingEntities
-                .Where(x => x.Key == key).FirstOrDefaultAsync();
+                .Where(x => x.Key.ToUpper() == key.ToUpper()).FirstOrDefaultAsync();
 
             return appSettingEntity;
         }
