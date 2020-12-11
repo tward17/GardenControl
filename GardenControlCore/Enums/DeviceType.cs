@@ -8,7 +8,7 @@ namespace GardenControlCore.Enums
 {
     public enum DeviceType
     {
-        Relay,
-        DS18B20
+        Relay = 1,
+        DS18B20 = 2
     }
 }

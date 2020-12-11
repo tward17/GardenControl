@@ -31,7 +31,7 @@ namespace GardenControlRepositories
 
             if (appSettingEntity == null)
             {
-                _logger.LogInformation($"Tried deleting AppSetting that does not exist, key: {key}");
+                _logger.LogWarning($"Tried deleting AppSetting that does not exist, key: {key}");
                 return;
             }
 
@@ -49,12 +49,10 @@ namespace GardenControlRepositories
 
         public async Task<IEnumerable<AppSettingEntity>> GetAllSettings()
         {
-            var appSettingEntity = await _context.AppSettingEntities.ToListAsync();
-
-            return appSettingEntity;
+            return await _context.AppSettingEntities.ToListAsync();
         }
 
-        public async Task<AppSettingEntity> GetSettingByKey(string key)
+        public async Task<AppSettingEntity> GetSetting(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
 

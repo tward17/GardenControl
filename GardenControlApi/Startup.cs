@@ -1,4 +1,5 @@
 using AutoMapper;
+using GardenControlApi.MapProfiles;
 using GardenControlRepositories;
 using GardenControlRepositories.Interfaces;
 using GardenControlServices;
@@ -36,6 +37,8 @@ namespace GardenControlApi
             var mapperConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new AppSettingProfile());
+                mc.AddProfile(new ControlDeviceProfile());
+                mc.AddProfile(new ControlDeviceDtoProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
@@ -52,6 +55,8 @@ namespace GardenControlApi
             });
             services.AddTransient<IAppSettingsRepository, AppSettingsRepository>();
             services.AddTransient<ISettingsService, SettingsService>();
+            services.AddTransient<IControlDeviceRepository, ControlDeviceRepository>();
+            services.AddTransient<IControlDeviceService, ControlDeviceService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

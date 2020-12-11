@@ -13,7 +13,7 @@ namespace GardenControlRepositories.Interfaces
     {
         public Task InsertSetting(string key, string value);
         public Task<IEnumerable<AppSettingEntity>> GetAllSettings();
-        public Task<AppSettingEntity> GetSettingByKey(string key);
+        public Task<AppSettingEntity> GetSetting(string key);
         public Task DeleteSetting(string key);
         public Task UpdateSetting(string key, string value);
     }

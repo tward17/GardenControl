@@ -37,13 +37,18 @@ namespace GardenControlServices
 
         public async Task<AppSetting> GetSettingByKey(string key)
         {
-            var appSetting = await _settingsRepository.GetSettingByKey(key);
+            var appSetting = await _settingsRepository.GetSetting(key);
             var setting = _mapper.Map<AppSetting>(appSetting);
             return setting;
         }
 
         public async Task InsertSetting(string key, string value)
         {
+            var keyAlreadyExists = await _settingsRepository.GetSetting(key);
+
+            if (keyAlreadyExists == null)
+                throw new ArgumentException($"A setting with the key '{key}' already exists in the database");
+
             await _settingsRepository.InsertSetting(key, value);
         }
 
