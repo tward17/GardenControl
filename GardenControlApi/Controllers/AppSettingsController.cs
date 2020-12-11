@@ -23,9 +23,9 @@ namespace GardenControlApi.Controllers
 
         // GET: api/<AppSettingsController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<AppSetting>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return await _appSettingsService.GetAllSettings();
         }
 
         [HttpGet("{key}")]
@@ -38,20 +38,38 @@ namespace GardenControlApi.Controllers
 
         // POST api/<AppSettingsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task Post([FromBody] AppSetting value)
         {
+            if (string.IsNullOrWhiteSpace(value.Key))
+                throw new ArgumentNullException(nameof(value.Key));
+
+            if (string.IsNullOrWhiteSpace(value.Value))
+                throw new ArgumentNullException(nameof(value.Value));
+
+            await _appSettingsService.InsertSetting(value.Key, value.Value);
         }
 
         // PUT api/<AppSettingsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{key}")]
+        public async Task Put(string key, string value)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
+
+            await _appSettingsService.UpdateSetting(key, value);
         }
 
         // DELETE api/<AppSettingsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{key}")]
+        public async Task Delete(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            await _appSettingsService.DeleteSetting(key);
         }
     }
 }

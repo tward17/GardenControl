@@ -30,7 +30,9 @@ namespace GardenControlServices
 
         public async Task<IEnumerable<AppSetting>> GetAllSettings()
         {
-            throw new NotImplementedException();
+            var appSettings = await _settingsRepository.GetAllSettings();
+            var settings = _mapper.Map<IEnumerable<AppSetting>>(appSettings);
+            return settings;
         }
 
         public async Task<AppSetting> GetSettingByKey(string key)
@@ -45,9 +47,9 @@ namespace GardenControlServices
             await _settingsRepository.InsertSetting(key, value);
         }
 
-        public Task UpdateSetting(string key, string value)
+        public async Task UpdateSetting(string key, string value)
         {
-            throw new NotImplementedException();
+            await _settingsRepository.UpdateSetting(key, value);
         }
     }
 }
