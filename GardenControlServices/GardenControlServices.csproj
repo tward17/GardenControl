@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
+    <PackageReference Include="Iot.Device.Bindings" Version="1.2.0" />
+    <PackageReference Include="UnitsNet" Version="4.77.0" />
   </ItemGroup>
 
   <ItemGroup>

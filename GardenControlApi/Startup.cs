@@ -57,6 +57,7 @@ namespace GardenControlApi
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<IControlDeviceRepository, ControlDeviceRepository>();
             services.AddTransient<IControlDeviceService, ControlDeviceService>();
+            services.AddTransient<DS18B20Service, DS18B20Service>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
