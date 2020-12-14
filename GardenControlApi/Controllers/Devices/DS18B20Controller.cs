@@ -27,6 +27,11 @@ namespace GardenControlApi.Controllers.Devices
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Returns a reading value from the specified DS18B20 temperature probe
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<DS18B20Dto> Get(int id)
         {
@@ -39,6 +44,19 @@ namespace GardenControlApi.Controllers.Devices
 
 
             return response;
+        }
+
+        /// <summary>
+        /// Returns the serial numbers of all the attached probes to the specified GPIO Pin.
+        /// Useful for getting serial numbers to register each probe.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{gpioPin}")]
+        public async Task<List<string>> GetSerialNumbers(int gpioPin)
+        {
+            var serialNumbers = await _dS18B20Service.GetSerialNumbers(gpioPin);
+
+            return serialNumbers;
         }
     }
 }

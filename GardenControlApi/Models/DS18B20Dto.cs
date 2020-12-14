@@ -7,8 +7,8 @@ namespace GardenControlApi.Models
 {
     public class DS18B20Dto
     {
-        public DateTime MeasurementDateTime { get; set; }
-        public decimal MeasurementValueCelcius { get; set; }
-        public decimal MeasurementValueFahrenheit { get; set; }
+        public DateTime ReadingDateTime { get; set; }
+        public decimal ReadingValueCelcius { get; set; }
+        public decimal ReadingValueFahrenheit { get; set; }
     }
 }

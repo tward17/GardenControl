@@ -95,7 +95,7 @@ namespace GardenControlRepositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating ControlDevice with ControlDeviceId: {deviceEntity.ControlDeviceId}");
+                _logger.LogError($"Error updating ControlDevice with ControlDeviceId: {deviceEntity.ControlDeviceId}. Error{ex.Message}");
                 throw;
             }
         }

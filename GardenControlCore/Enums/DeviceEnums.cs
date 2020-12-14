@@ -17,4 +17,10 @@ namespace GardenControlCore.Enums
         Off = 0,
         On = 1
     }
+
+    public enum RelayState
+    {
+        Off,
+        On
+    }
 }

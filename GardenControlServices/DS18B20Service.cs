@@ -26,14 +26,7 @@ namespace GardenControlServices
         {
             var controlDevice = await _controlDeviceService.GetDevice(id);
 
-            if (controlDevice == null)
-                throw new ArgumentException($"No device with id: {id} found");
-            else if (controlDevice.DeviceTypeId != GardenControlCore.Enums.DeviceType.DS18B20)
-                throw new ArgumentException($"Specified Control Device is not a DS18B20 Sensor");
-            else if (!controlDevice.GPIOPinNumber.HasValue)
-                throw new Exception($"Control Device with id: {id} does not have a GPIO Pin specifed");
-            else if (string.IsNullOrWhiteSpace(controlDevice.SerialNumber))
-                throw new Exception($"Control Device with id: { id } does not have a Serial Number specifed");
+            ValidateControlDevice(controlDevice);
 
             TemperatureReading temperatureReading = null;
 
@@ -54,6 +47,33 @@ namespace GardenControlServices
             }
 
             return temperatureReading;
+        }
+
+        public async Task<List<string>> GetSerialNumbers(int gpioPin)
+        {
+            var serialNumbers = new List<string>();
+
+            foreach (var probe in OneWireThermometerDevice.EnumerateDevices())
+            {
+                var oneWireMeasurement = await probe.ReadTemperatureAsync();
+
+                if (!string.IsNullOrWhiteSpace(probe.DeviceId))
+                    serialNumbers.Add(probe.DeviceId);
+            }
+
+            return serialNumbers;
+        }
+
+        private void ValidateControlDevice(ControlDevice controlDevice)
+        {
+            if (controlDevice == null)
+                throw new ArgumentException($"No device with id: {controlDevice.ControlDeviceId} found");
+            else if (controlDevice.DeviceTypeId != GardenControlCore.Enums.DeviceType.DS18B20)
+                throw new ArgumentException($"Specified Control Device with id: {controlDevice.ControlDeviceId} is not a DS18B20 Sensor");
+            else if (!controlDevice.GPIOPinNumber.HasValue)
+                throw new Exception($"Control Device with id: {controlDevice.ControlDeviceId} does not have a GPIO Pin specifed");
+            else if (string.IsNullOrWhiteSpace(controlDevice.SerialNumber))
+                throw new Exception($"Control Device with id: {controlDevice.ControlDeviceId} does not have a Serial Number specifed");
         }
     }
 }
