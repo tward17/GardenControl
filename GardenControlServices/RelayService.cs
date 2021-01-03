@@ -4,6 +4,7 @@ using GardenControlServices.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Device.Gpio;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,8 +29,26 @@ namespace GardenControlServices
             ValidateControlDevice(controlDevice);
 
             // Get the state of the pin. Need to check reliability of this, as reading the pin state can change it's value.
+            var gpio = new GpioController();
 
-            return RelayState.Off;
+            gpio.OpenPin(controlDevice.GPIOPinNumber.Value, PinMode.Output);
+
+            var x = gpio.Read(controlDevice.GPIOPinNumber.Value);
+
+            Console.WriteLine(x.ToString());
+
+            if (x == PinValue.High)
+            {
+                Console.WriteLine("state is off");
+                return RelayState.Off;
+            }
+            else
+            {
+                Console.WriteLine("state is on");
+                return RelayState.On;
+            }
+
+            //return RelayState.Off;
         }
 
         public async Task SetRelayState(int id, RelayState state)
@@ -39,6 +58,22 @@ namespace GardenControlServices
             ValidateControlDevice(controlDevice);
 
             // Set the state of the pin. May need to cache to value
+            var gpio = new GpioController();
+
+            gpio.OpenPin(controlDevice.GPIOPinNumber.Value, PinMode.Output);
+
+            if (state == RelayState.On)
+            {
+                Console.WriteLine("set state to low");
+                gpio.Write(controlDevice.GPIOPinNumber.Value, PinValue.Low);
+            }
+            else
+            {
+                Console.WriteLine("set state to high");
+                gpio.Write(controlDevice.GPIOPinNumber.Value, PinValue.High);
+            }
+
+            //gpio.ClosePin(controlDevice.GPIOPinNumber.Value);
         }
 
         public async Task ToggleRelayState(int id)

@@ -17,6 +17,6 @@ namespace GardenControlApi.Models
         public bool IsActive { get; set; }
         public int? GPIOPinNumber { get; set; }
         public string SerialNumber { get; set; }
-        public int? DefaultState { get; set; }
+        public DefaultState? DefaultState { get; set; }
     }
 }

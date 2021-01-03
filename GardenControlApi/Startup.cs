@@ -41,6 +41,7 @@ namespace GardenControlApi
                 mc.AddProfile(new AppSettingProfile());
                 mc.AddProfile(new ControlDeviceProfile());
                 mc.AddProfile(new ControlDeviceDtoProfile());
+                mc.AddProfile(new DS18B20DtoProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
@@ -63,20 +64,25 @@ namespace GardenControlApi
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<IControlDeviceRepository, ControlDeviceRepository>();
             services.AddTransient<IControlDeviceService, ControlDeviceService>();
-            services.AddTransient<DS18B20Service, DS18B20Service>();
+            services.AddTransient<DS18B20Service>();
+            services.AddTransient<RelayService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));
+            //}
 
-            app.UseHttpsRedirection();
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));
+
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
@@ -87,5 +93,6 @@ namespace GardenControlApi
                 endpoints.MapControllers();
             });
         }
+
     }
 }

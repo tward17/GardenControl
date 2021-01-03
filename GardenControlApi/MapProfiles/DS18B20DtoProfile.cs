@@ -12,7 +12,13 @@ namespace GardenControlApi.MapProfiles
     {
         public DS18B20DtoProfile()
         {
-            CreateMap<TemperatureReading, DS18B20Dto>();
+            CreateMap<TemperatureReading, DS18B20Dto>()
+                .ForMember(dest =>
+                dest.ReadingValueCelcius,
+                opt => opt.MapFrom(src => src.TemperatureC))
+                .ForMember(dest =>
+                dest.ReadingValueFahrenheit,
+                opt => opt.MapFrom(src => src.TemperatureF));
         }
     }
 }
