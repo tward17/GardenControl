@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlRepositories",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlServices", "GardenControlServices\GardenControlServices.csproj", "{C4697CEC-6ABC-4250-AC94-6E11BF9692D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GardenControlCore", "GardenControlCore\GardenControlCore.csproj", "{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlCore", "GardenControlCore\GardenControlCore.csproj", "{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GardenControlUI", "GardenControlUI\GardenControlUI.csproj", "{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

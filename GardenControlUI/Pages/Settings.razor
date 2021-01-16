@@ -1,0 +1,42 @@
+﻿@page "/settings"
+@inject HttpClient Http
+
+<h1>Settings</h1>
+
+@if (appSettings == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var setting in appSettings)
+        {
+            <tr>
+                <td>@setting.Key</td>
+                <td>@setting.Value</td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+
+@code {
+    private ICollection<AppSetting> appSettings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new("http://192.168.0.56:5000", Http);
+        appSettings = await client.AppSettingsAllAsync();
+    }
+}
