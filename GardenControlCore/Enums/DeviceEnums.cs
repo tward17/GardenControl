@@ -9,7 +9,8 @@ namespace GardenControlCore.Enums
     public enum DeviceType
     {
         Relay = 1,
-        DS18B20 = 2
+        DS18B20 = 2,
+        FloatSensor = 3
     }
 
     public enum DefaultState
@@ -22,5 +23,11 @@ namespace GardenControlCore.Enums
     {
         Off,
         On
+    }
+
+    public enum FloatSensorState
+    {
+        Low,
+        High
     }
 }

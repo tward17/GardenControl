@@ -33,22 +33,16 @@ namespace GardenControlServices
 
             gpio.OpenPin(controlDevice.GPIOPinNumber.Value, PinMode.Output);
 
-            var x = gpio.Read(controlDevice.GPIOPinNumber.Value);
+            var state = gpio.Read(controlDevice.GPIOPinNumber.Value);
 
-            Console.WriteLine(x.ToString());
-
-            if (x == PinValue.High)
+            if (state == PinValue.High)
             {
-                Console.WriteLine("state is off");
                 return RelayState.Off;
             }
             else
             {
-                Console.WriteLine("state is on");
                 return RelayState.On;
             }
-
-            //return RelayState.Off;
         }
 
         public async Task SetRelayState(int id, RelayState state)
@@ -64,16 +58,12 @@ namespace GardenControlServices
 
             if (state == RelayState.On)
             {
-                Console.WriteLine("set state to low");
                 gpio.Write(controlDevice.GPIOPinNumber.Value, PinValue.Low);
             }
             else
             {
-                Console.WriteLine("set state to high");
                 gpio.Write(controlDevice.GPIOPinNumber.Value, PinValue.High);
             }
-
-            //gpio.ClosePin(controlDevice.GPIOPinNumber.Value);
         }
 
         public async Task ToggleRelayState(int id)

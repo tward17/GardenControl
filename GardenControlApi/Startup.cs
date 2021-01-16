@@ -66,6 +66,7 @@ namespace GardenControlApi
             services.AddTransient<IControlDeviceService, ControlDeviceService>();
             services.AddTransient<DS18B20Service>();
             services.AddTransient<RelayService>();
+            services.AddTransient<FloatSensorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
