@@ -1,4 +1,6 @@
 ﻿@page "/settings"
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @inject HttpClient Http
 
 <h1>Settings</h1>
@@ -9,34 +11,132 @@
 }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>Key</th>
-            <th>Value</th>
-            <td></td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var setting in appSettings)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@setting.Key</td>
-                <td>@setting.Value</td>
+                <th>Key</th>
+                <th>Value</th>
                 <td></td>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var setting in appSettings.OrderBy(s => s.Key))
+            {
+                if (updatingSetting != null && setting.Key == updatingSetting.Key)
+                {
+                    <tr>
+                        <td>@setting.Key</td>
+                        <td><input type="text" @bind="updatingSetting.Value" /></td>
+                        <td class="text-right"><button @onclick="SaveSetting" class="btn btn-primary">Save</button> <button @onclick="CancelUpdateSetting" class="btn btn-secondary">Cancel</button></td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@setting.Key</td>
+                        <td>@setting.Value</td>
+                        <td class="text-right"><a @onclick="@(() => UpdateSetting(setting.Key))"><span class="oi oi-pencil" aria-hidden="true"></span></a> <a @onclick="@(() => DeleteSetting(setting.Key))"><span class="oi oi-delete" aria-hidden="true"></span></a></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div>
+        Insert New Setting:
+        <input placeholder="Key" @bind="newSettingKey" />
+        <input placeholder="Value" @bind="newSettingValue" />
+        <button @onclick="AddSetting" class="btn btn-primary">Add</button>
+    </div>
+    
 }
 
 
 @code {
     private ICollection<AppSetting> appSettings;
+    private string newSettingKey;
+    private string newSettingValue;
+    private AppSetting updatingSetting = null;
 
     protected override async Task OnInitializedAsync()
     {
-        swaggerClient client = new("http://192.168.0.56:5000", Http);
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         appSettings = await client.AppSettingsAllAsync();
+    }
+
+    private async void AddSetting()
+    {
+        if (string.IsNullOrWhiteSpace(newSettingKey) || string.IsNullOrWhiteSpace(newSettingValue))
+        {
+            return;
+        }
+
+        var newAppSetting = new AppSetting { Key = newSettingKey, Value = newSettingValue };
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+
+        try
+        {
+            await client.AppSettingsAsync(newAppSetting);
+            appSettings.Add(newAppSetting);
+            newSettingKey = "";
+            newSettingValue = "";
+        }
+        catch (Exception ex)
+        {
+
+        }
+        finally
+        {
+            this.StateHasChanged();
+        }
+    }
+
+    private async void UpdateSetting(string key)
+    {
+        updatingSetting = appSettings.Where(s => s.Key == key).Single();
+        this.StateHasChanged();
+    }
+
+    private async void SaveSetting()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        try
+        {
+            await client.AppSettings3Async(updatingSetting.Key, updatingSetting.Value);
+            updatingSetting = null;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally { this.StateHasChanged(); }
+    }
+
+    private async void CancelUpdateSetting()
+    {
+        updatingSetting = null;
+        this.StateHasChanged();
+    }
+
+    private async void DeleteSetting(string key)
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        try
+        {
+            await client.AppSettings4Async(key);
+            appSettings.Remove(appSettings.Where(a => a.Key == key).Single());
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+        finally
+        {
+            this.StateHasChanged();
+        }
+
     }
 }
