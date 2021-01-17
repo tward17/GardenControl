@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlServices", "Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlCore", "GardenControlCore\GardenControlCore.csproj", "{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GardenControlUI", "GardenControlUI\GardenControlUI.csproj", "{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlUI", "GardenControlUI\GardenControlUI.csproj", "{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
