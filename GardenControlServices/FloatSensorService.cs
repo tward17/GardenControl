@@ -31,7 +31,8 @@ namespace GardenControlServices
             // Get the state of the pin. Need to check reliability of this, as reading the pin state can change it's value.
             var gpio = new GpioController();
 
-            gpio.OpenPin(controlDevice.GPIOPinNumber.Value, PinMode.Input);
+            // Pull Up configuration - Sensor must be wired to GPIO and GND 
+            gpio.OpenPin(controlDevice.GPIOPinNumber.Value, PinMode.InputPullUp);
 
             var state = gpio.Read(controlDevice.GPIOPinNumber.Value);
 
