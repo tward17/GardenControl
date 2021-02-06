@@ -46,7 +46,7 @@ namespace GardenControlServices
         {
             var keyAlreadyExists = await _settingsRepository.GetSetting(key);
 
-            if (keyAlreadyExists == null)
+            if (keyAlreadyExists != null)
                 throw new ArgumentException($"A setting with the key '{key}' already exists in the database");
 
             await _settingsRepository.InsertSetting(key, value);

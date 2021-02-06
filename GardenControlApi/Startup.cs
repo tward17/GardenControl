@@ -48,7 +48,7 @@ namespace GardenControlApi
 
             services.AddSingleton(mapper);
             services.AddDbContext<GardenControlContext>(
-               options => options.UseSqlite(Configuration.GetConnectionString("GardenControlConnection"), builder =>
+               options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
                    builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
             ));
             services.AddControllers();
