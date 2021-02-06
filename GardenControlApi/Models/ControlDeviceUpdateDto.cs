@@ -1,21 +1,22 @@
 ﻿using GardenControlCore.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace GardenControlCore.Models
+namespace GardenControlApi.Models
 {
-    public class ControlDevice
+    public class ControlDeviceUpdateDto
     {
-        public int ControlDeviceId { get; init; }
-        public DeviceType DeviceTypeId { get; set; }
+        [Required]
+        [MaxLength(255)]
         public string Alias { get; set; }
         public string Description { get; set; }
+        [Required]
         public bool IsActive { get; set; }
         public int? GPIOPinNumber { get; set; }
         public string SerialNumber { get; set; }
-        public GardenControlCore.Enums.DefaultState? DefaultState { get; set; }
+        public DefaultState? DefaultState { get; set; }
     }
 }

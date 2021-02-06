@@ -86,7 +86,12 @@ namespace GardenControlRepositories
                 throw new ArgumentException(nameof(device));
             }
 
-            deviceEntity = device;
+            deviceEntity.Alias = device.Alias;
+            deviceEntity.Description = device.Description;
+            deviceEntity.IsActive = device.IsActive;
+            deviceEntity.GPIOPinNumber = device.GPIOPinNumber;
+            deviceEntity.SerialNumber = deviceEntity.SerialNumber;
+            deviceEntity.DefaultState = device.DefaultState;
 
             try
             {

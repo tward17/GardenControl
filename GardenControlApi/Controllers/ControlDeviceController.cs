@@ -48,9 +48,20 @@ namespace GardenControlApi.Controllers
 
         // PUT api/<ControlDeviceController>/5
         [HttpPut("{id}")]
-        public async Task Put(int id, [FromBody] ControlDevice value)
+        public async Task Put(int id, [FromBody] ControlDeviceUpdateDto value)
         {
-            await _deviceControlService.UpdateDevice(value);
+            var device = new ControlDevice
+            {
+                ControlDeviceId = id,
+                Alias = value.Alias,
+                Description = value.Description,
+                IsActive = value.IsActive,
+                GPIOPinNumber = value.GPIOPinNumber,
+                SerialNumber = value.SerialNumber,
+                DefaultState = value.DefaultState
+            };
+
+            await _deviceControlService.UpdateDevice(device);
         }
 
         // DELETE api/<ControlDeviceController>/5
