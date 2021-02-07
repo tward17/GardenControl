@@ -46,7 +46,7 @@ Welcome to your new app.
                         @foreach (var floatSensor in floatSensors)
                         {
                             <li>
-                                
+                                <FloatSensorComponent ControlDeviceId="@floatSensor.ControlDeviceId" Alias="@floatSensor.Alias"></FloatSensorComponent>
                             </li>
                         }
                     </ul>
@@ -73,7 +73,7 @@ Welcome to your new app.
                         @foreach (var ds18b20Thermometer in ds18b20Thermometers)
                         {
                             <li>
-                                
+                                <DS18B20Component ControlDeviceId="@ds18b20Thermometer.ControlDeviceId" Alias="@ds18b20Thermometer.Alias"></DS18B20Component>
                             </li>
                         }
                     </ul>

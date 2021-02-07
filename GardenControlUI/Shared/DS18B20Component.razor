@@ -1,0 +1,23 @@
+﻿<div>
+    <span>@Alias: @Temperature</span> 
+</div>
+
+@code {
+    [Parameter]
+    public int ControlDeviceId { get; set; }
+    [Parameter]
+    public string Alias { get; set; }
+    private string Temperature { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFloatSensorState();
+    }
+
+    private async Task GetFloatSensorState()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var response = await client.DS18B20Async(ControlDeviceId);
+        Temperature = response.ReadingValueCelcius.ToString("0.#");
+    }
+}
