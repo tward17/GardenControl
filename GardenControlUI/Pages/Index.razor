@@ -21,7 +21,7 @@ Welcome to your new app.
                         @foreach (var relay in relays)
                         {
                             <li>
-                                <RelayComponent ControlDeviceId="@relay.ControlDeviceId" Alias="@relay.Alias" IsRelayOn="@GetIsRelayOn(relay)"></RelayComponent>
+                                <RelayComponent ControlDeviceId="@relay.ControlDeviceId" Alias="@relay.Alias"></RelayComponent>
                             </li>
                         }
                     </ul>
@@ -117,12 +117,5 @@ Welcome to your new app.
                 Alias = cd.Alias,
                 DeviceTypeId = GardenControlCore.Enums.DeviceType.DS18B20
             }).ToList();
-    }
-
-    private bool GetIsRelayOn(GardenControlCore.Models.ControlDevice controlDevice)
-    {
-        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        var relayState = client.RelayAsync(controlDevice.ControlDeviceId).Result;
-        return (GardenControlCore.Enums.RelayState)Enum.Parse(typeof(GardenControlCore.Enums.RelayState), relayState.RelayState) == GardenControlCore.Enums.RelayState.On;
     }
 }

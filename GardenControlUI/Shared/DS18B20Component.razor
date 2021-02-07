@@ -1,4 +1,6 @@
-﻿<div>
+﻿@implements IDisposable
+
+<div>
     <span>@Alias: @Temperature</span> 
 </div>
 
@@ -9,15 +11,34 @@
     public string Alias { get; set; }
     private string Temperature { get; set; }
 
+    Timer timer;
+
     protected override async Task OnInitializedAsync()
     {
-        await GetFloatSensorState();
+        await MonitorDS18B20();
     }
 
-    private async Task GetFloatSensorState()
+    private async Task MonitorDS18B20()
+    {
+        timer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                GetDS18B20Value();
+                StateHasChanged();
+            });
+        }, null, 0, 5000);
+    }
+
+    private async Task GetDS18B20Value()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         var response = await client.DS18B20Async(ControlDeviceId);
         Temperature = response.ReadingValueCelcius.ToString("0.#");
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 }

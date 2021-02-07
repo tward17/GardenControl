@@ -1,4 +1,6 @@
-﻿<div>
+﻿@implements IDisposable
+
+<div>
     <span>@Alias:</span> <span style="color: @(FloatSensorState == Enum.GetName(GardenControlCore.Enums.FloatSensorState.High) ? "Green" : "Red")">@FloatSensorState</span>
 </div>
 
@@ -9,9 +11,24 @@
     public string Alias { get; set; }
     private string FloatSensorState { get; set; }
 
+    Timer timer;
+
     protected override async Task OnInitializedAsync()
     {
-        await GetFloatSensorState();
+        await MonitorFloatSensor();
+    }
+
+    private async Task MonitorFloatSensor()
+    {
+        timer = new Timer(async _ =>
+        {
+
+            await InvokeAsync(() =>
+            {
+                GetFloatSensorState();
+                StateHasChanged();
+            });
+        }, null, 0, 5000);
     }
 
     private async Task GetFloatSensorState()
@@ -19,5 +36,10 @@
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         var response = await client.FloatSensorAsync(ControlDeviceId);
         FloatSensorState = response.FloatSensorState;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 }
