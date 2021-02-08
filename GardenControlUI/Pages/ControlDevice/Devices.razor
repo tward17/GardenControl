@@ -27,7 +27,7 @@ else
                         <td>@device.DeviceTypeId</td>
                         <td>@device.GPIOPinNumber</td>
                         <td>@device.IsActive</td>
-                        <td class="text-right"><a><span class="oi oi-pencil" aria-hidden="true"></span></a> <a><span class="oi oi-delete" aria-hidden="true"></span></a></td>
+                        <td class="text-right"><a href="/controldevice/edit/@device.ControlDeviceId" class="btn btn-primary"><span class="oi oi-pencil" aria-hidden="true"></span> Edit</a> <a class="btn btn-danger"><span class="oi oi-delete" aria-hidden="true"></span> Delete</a></td>
                     </tr>
                 }
             </tbody>

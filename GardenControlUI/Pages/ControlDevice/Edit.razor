@@ -1,0 +1,56 @@
+﻿@page "/controldevice/edit/{ControlDeviceId:int}"
+@inject NavigationManager uriHelper
+
+<h3>Edit Control Device</h3>
+
+@if(controlDevice == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+<form>
+    <div class="form-group">
+        <label for="alias-input">Alias</label>
+        <input type="text" class="form-control" id="alias-input" @bind="@controlDevice.Alias" placeholder="Control Device's Alias">
+    </div>
+    <div class="form-group">
+        <label for="description-input">Description</label>
+        <input type="text" class="form-control" id="description-input" @bind="@controlDevice.Description" placeholder="Enter any additional details about the Control Device, such as location, colour coding etc.">
+    </div>
+    <div class="form-group">
+        <label for="gpio-pin-input">GPIO Pin</label>
+
+    </div>
+    <div class="form-group">
+        <label for="serial-number-input">Serial Number</label>
+        <input type="text" class="form-control" id="serial-number-input" @bind="@controlDevice.SerialNumber" placeholder="The serial number of the device if it has one, for 1-wire protocol">
+    </div>
+</form>
+}
+
+
+@code {
+    [Parameter]
+    public int controlDeviceId { get; set; }
+    ControlDevice controlDevice = new ControlDevice();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var controlDeviceDto = await client.ControlDevice2Async(controlDeviceId);
+
+        if (controlDevice == null)
+            throw new Exception();
+
+        controlDevice = new ControlDevice
+        {
+            ControlDeviceId = controlDeviceDto.ControlDeviceId,
+            Alias = controlDeviceDto.Alias,
+            Description = controlDeviceDto.Description,
+            GpioPinNumber = controlDeviceDto.GpioPinNumber,
+            SerialNumber = controlDeviceDto.SerialNumber
+        };
+
+    }
+}
