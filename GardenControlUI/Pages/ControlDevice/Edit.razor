@@ -1,6 +1,6 @@
 ﻿@page "/controldevice/edit/{ControlDeviceId:int}"
 @using GardenControlCore.Models;
-@inject NavigationManager uriHelper
+@inject NavigationManager NavManager
 
 @if (controlDevice == null)
 {
@@ -67,7 +67,7 @@ else
                         </div>
                     }
                 </div>
-                <button class="btn btn-primary">Save</button> <button class="btn btn-secondary">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveControlDevice">Save</button> <button type="button" class="btn btn-secondary" @onclick="CancelUpdate">Cancel</button>
             </form>
         </div>
     </div>
@@ -99,5 +99,29 @@ else
             DefaultState = (GardenControlCore.Enums.DefaultState)controlDeviceDto.DefaultState
         };
 
+    }
+
+    private void SaveControlDevice()
+    {
+        if (controlDevice == null)
+            throw new ArgumentNullException(nameof(controlDevice));
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        client.ControlDevice3Async(controlDeviceId, new GardenControlUI.ControlDevice
+        {
+            Alias = controlDevice.Alias,
+            Description = controlDevice.Description,
+            GpioPinNumber = controlDevice.GPIOPinNumber,
+            SerialNumber = controlDevice.SerialNumber,
+            IsActive = controlDevice.IsActive,
+            DefaultState = (int)controlDevice.DefaultState
+        });
+
+        NavManager.NavigateTo("/devices/");
+    }
+
+    private void CancelUpdate()
+    {
+        NavManager.NavigateTo("/devices/");
     }
 }
