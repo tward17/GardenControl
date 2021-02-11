@@ -90,7 +90,7 @@ namespace GardenControlRepositories
             deviceEntity.Description = device.Description;
             deviceEntity.IsActive = device.IsActive;
             deviceEntity.GPIOPinNumber = device.GPIOPinNumber;
-            deviceEntity.SerialNumber = deviceEntity.SerialNumber;
+            deviceEntity.SerialNumber = device.SerialNumber;
             deviceEntity.DefaultState = device.DefaultState;
 
             try

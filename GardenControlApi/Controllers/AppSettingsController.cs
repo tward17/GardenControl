@@ -1,4 +1,6 @@
-﻿using GardenControlCore.Models;
+﻿using AutoMapper;
+using GardenControlApi.Models;
+using GardenControlCore.Models;
 using GardenControlServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,33 +19,35 @@ namespace GardenControlApi.Controllers
     [ApiController]
     public class AppSettingsController : ControllerBase
     {
-        private ISettingsService _appSettingsService { get; init; }
+        private IAppSettingsService _appSettingsService { get; init; }
+        private IMapper _mapper { get; init; }
 
-        public AppSettingsController(ISettingsService settingsService)
+        public AppSettingsController(IMapper mapper, IAppSettingsService settingsService)
         {
+            _mapper = mapper;
             _appSettingsService = settingsService;
         }
 
         /// <summary>
         /// Returns all settings
         /// </summary>
-        /// <returns></returns>
+        /// <returns>All of the AppSettings</returns>
         // GET: api/<AppSettingsController>
         [HttpGet]
         public async Task<IEnumerable<AppSetting>> Get()
         {
-            return await _appSettingsService.GetAllSettings();
+            return await _appSettingsService.GetAllSettingsAsync();
         }
 
         /// <summary>
         /// Returns specified setting
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        [HttpGet("{key}")]
-        public async Task<AppSetting> Get(string key)
+        /// <param name="id"></param>
+        /// <returns>The AppSetting for the provided key</returns>
+        [HttpGet("{id}")]
+        public async Task<AppSetting> Get(int id)
         {
-            var val = await _appSettingsService.GetSettingByKey(key);
+            var val = await _appSettingsService.GetAppSettingByIdAsync(id);
 
             return val;
         }
@@ -52,52 +56,62 @@ namespace GardenControlApi.Controllers
         /// Inserts setting
         /// </summary>
         /// <param name="value"></param>
-        /// <returns></returns>
+        /// <returns>A newly created AppSetting</returns>
+        /// <reponse code="201">Returns the newly created AppSetting</reponse>
+        /// <reponse code="400">If the key or value is null or empty</reponse>
+        /// <remarks>Any value set for CanBeUpdated property will be ignored and always set to true</remarks>
         // POST api/<AppSettingsController>
         [HttpPost]
-        public async Task Post([FromBody] AppSetting value)
+        public async Task<ActionResult<AppSetting>> Post([FromBody] AppSettingDto value)
         {
             if (string.IsNullOrWhiteSpace(value.Key))
-                throw new ArgumentNullException(nameof(value.Key));
+                return BadRequest();
 
             if (string.IsNullOrWhiteSpace(value.Value))
                 throw new ArgumentNullException(nameof(value.Value));
 
-            await _appSettingsService.InsertSetting(value.Key, value.Value);
+            var newAppSetting = await _appSettingsService.InsertAppSettingAsync(value.Key, value.Value);
+
+            return CreatedAtAction(nameof(Get), new { id = newAppSetting.AppSettingId }, newAppSetting);
         }
 
         /// <summary>
         /// Updates setting with specified value
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
+        /// <param name="id"></param>
+        /// <param name="appSettingDto"></param>
         /// <returns></returns>
         // PUT api/<AppSettingsController>/5
-        [HttpPut("{key}")]
-        public async Task Put(string key, string value)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, AppSettingDto appSettingDto)
         {
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentNullException(nameof(key));
+            if (id != appSettingDto.AppSettingId)
+                return BadRequest();
 
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentNullException(nameof(value));
+            try
+            {
+                await _appSettingsService.UpdateAppSettingAsync(_mapper.Map<AppSetting>(appSettingDto));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
 
-            await _appSettingsService.UpdateSetting(key, value);
+            return NoContent();
         }
 
         /// <summary>
         /// Deletes specified setting
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         // DELETE api/<AppSettingsController>/5
-        [HttpDelete("{key}")]
-        public async Task Delete(string key)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentNullException(nameof(key));
+            await _appSettingsService.DeleteAppSettingAsync(id);
 
-            await _appSettingsService.DeleteSetting(key);
+            return NoContent();
         }
     }
 }

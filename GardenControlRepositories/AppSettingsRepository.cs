@@ -22,18 +22,19 @@ namespace GardenControlRepositories
             _context.Database.EnsureCreated();
         }
 
-        public async Task DeleteSetting(string key)
+        public async Task DeleteAppSettingAsync(int id)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
-
             var appSettingEntity = await _context.AppSettingEntities
-                .Where(x => x.Key == key).FirstOrDefaultAsync();
+                .Where(x => x.AppSettingId == id).FirstOrDefaultAsync();
 
             if (appSettingEntity == null)
             {
-                _logger.LogWarning($"Tried deleting AppSetting that does not exist, key: {key}");
+                _logger.LogWarning($"Tried deleting AppSetting that does not exist, AppSettingId: {id}");
                 return;
             }
+
+            if (!appSettingEntity.CanBeUpdated)
+                throw new InvalidOperationException($"Cannot delete App Setting with key: {appSettingEntity.Key}");
 
             try
             {
@@ -42,17 +43,25 @@ namespace GardenControlRepositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting AppSetting ({key}): {ex.Message}");
+                _logger.LogError($"Error deleting AppSetting ({id}): {ex.Message}");
                 throw;
             }
         }
 
-        public async Task<IEnumerable<AppSettingEntity>> GetAllSettings()
+        public async Task<IEnumerable<AppSettingEntity>> GetAllAppSettingsAsync()
         {
             return await _context.AppSettingEntities.ToListAsync();
         }
 
-        public async Task<AppSettingEntity> GetSetting(string key)
+        public async Task<AppSettingEntity> GetAppSettingByIdAsync(int id)
+        {
+            var appSettingEntity = await _context.AppSettingEntities
+                .Where(x => x.AppSettingId == id).FirstOrDefaultAsync();
+
+            return appSettingEntity;
+        }
+
+        public async Task<AppSettingEntity> GetAppSettingByKeyAsync(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
 
@@ -62,7 +71,7 @@ namespace GardenControlRepositories
             return appSettingEntity;
         }
 
-        public async Task InsertSetting(string key, string value)
+        public async Task<AppSettingEntity> InsertAppSettingAsync(string key, string value, bool canBeUpdated = true)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
@@ -70,7 +79,8 @@ namespace GardenControlRepositories
             var appSettingEntity = new AppSettingEntity
             {
                 Key = key,
-                Value = value
+                Value = value,
+                CanBeUpdated = canBeUpdated
             };
 
             try
@@ -83,23 +93,28 @@ namespace GardenControlRepositories
                 _logger.LogError($"Error Inserting AppSetting ({key}, {value}): {ex.Message}");
                 throw;
             }
+
+            return appSettingEntity;
         }
 
-        public async Task UpdateSetting(string key, string value)
+        public async Task<AppSettingEntity> UpdateAppSettingAsync(AppSettingEntity appSetting)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
+            if (string.IsNullOrWhiteSpace(appSetting.Key)) throw new ArgumentNullException(nameof(appSetting.Key));
+            if (string.IsNullOrWhiteSpace(appSetting.Value)) throw new ArgumentNullException(nameof(appSetting.Value));
 
             var appSettingEntity = await _context.AppSettingEntities
-                .Where(x => x.Key == key).FirstOrDefaultAsync();
+                .Where(x => x.AppSettingId == appSetting.AppSettingId).FirstOrDefaultAsync();
 
             if (appSettingEntity == null)
             {
-                _logger.LogWarning($"Tried to update AppSetting for key that doesn't exist, Key: {key}");
-                throw new ArgumentException($"No AppSetting exists with key: {key}");
+                _logger.LogWarning($"Tried to update AppSetting for id that doesn't exist, id: {appSetting.AppSettingId}");
+                throw new ArgumentException($"No AppSetting exists with id: {appSetting.AppSettingId}");
             }
 
-            appSettingEntity.Value = value;
+            if (!appSettingEntity.CanBeUpdated)
+                throw new InvalidOperationException($"Cannot delete App Setting with key: {appSettingEntity.Key}");
+
+            appSettingEntity.Value = appSetting.Value;
 
             try
             {
@@ -107,9 +122,11 @@ namespace GardenControlRepositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error Updating AppSetting ({key}): {ex.Message}");
+                _logger.LogError($"Error Updating AppSetting ({appSetting.AppSettingId}): {ex.Message}");
                 throw;
             }
+
+            return appSettingEntity;
         }
     }
 }

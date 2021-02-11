@@ -42,26 +42,38 @@ namespace GardenControlApi
                 mc.AddProfile(new ControlDeviceProfile());
                 mc.AddProfile(new ControlDeviceDtoProfile());
                 mc.AddProfile(new DS18B20DtoProfile());
+                mc.AddProfile(new AppSettingDtoProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
 
             services.AddSingleton(mapper);
+#if DEBUG
+            services.AddDbContext<GardenControlContext>(
+               options => options.UseSqlite(Configuration.GetConnectionString("GardenControlConnection"), builder =>
+                   builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
+            ));
+#else
             services.AddDbContext<GardenControlContext>(
                options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
                    builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
             ));
+#endif
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GardenControlApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { 
+                    Title = "GardenControlApi", 
+                    Version = "v1",
+                    Description = "An API that allows the monitor and control of devices plugged in to the GPIO Pins on a Raspberry Pi"});
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
             services.AddTransient<IAppSettingsRepository, AppSettingsRepository>();
-            services.AddTransient<ISettingsService, SettingsService>();
+            services.AddTransient<IAppSettingsService, AppSettingsService>();
             services.AddTransient<IControlDeviceRepository, ControlDeviceRepository>();
             services.AddTransient<IControlDeviceService, ControlDeviceService>();
             services.AddTransient<DS18B20Service>();

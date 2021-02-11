@@ -11,10 +11,11 @@ namespace GardenControlRepositories.Interfaces
     /// </summary>
     public interface IAppSettingsRepository
     {
-        public Task InsertSetting(string key, string value);
-        public Task<IEnumerable<AppSettingEntity>> GetAllSettings();
-        public Task<AppSettingEntity> GetSetting(string key);
-        public Task DeleteSetting(string key);
-        public Task UpdateSetting(string key, string value);
+        public Task<AppSettingEntity> InsertAppSettingAsync(string key, string value, bool canBeUpdated = true);
+        public Task<IEnumerable<AppSettingEntity>> GetAllAppSettingsAsync();
+        public Task<AppSettingEntity> GetAppSettingByIdAsync(int id);
+        public Task<AppSettingEntity> GetAppSettingByKeyAsync(string key);
+        public Task DeleteAppSettingAsync(int id);
+        public Task<AppSettingEntity> UpdateAppSettingAsync(AppSettingEntity appSetting);
     }
 }
