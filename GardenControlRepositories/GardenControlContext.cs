@@ -13,5 +13,6 @@ namespace GardenControlRepositories
 
         public DbSet<AppSettingEntity> AppSettingEntities { get; set; }
         public DbSet<ControlDeviceEntity> ControlDeviceEntities { get; set; }
+        public DbSet<MeasurementEntity> MeasurementEntities { get; set; }
     }
 }
