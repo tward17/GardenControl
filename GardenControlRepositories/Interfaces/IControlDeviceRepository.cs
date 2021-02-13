@@ -8,10 +8,10 @@ namespace GardenControlRepositories.Interfaces
 {
     public interface IControlDeviceRepository
     {
-        public Task InsertDevice(ControlDeviceEntity device);
-        public Task<ControlDeviceEntity> GetDevice(int id);
-        public Task<IEnumerable<ControlDeviceEntity>> GetAllDevices();
-        public Task UpdateDevice(ControlDeviceEntity device);
-        public Task DeleteDevice(int id);
+        public Task<ControlDeviceEntity> InsertDeviceAsync(ControlDeviceEntity device);
+        public Task<ControlDeviceEntity> GetDeviceAsync(int id);
+        public Task<IEnumerable<ControlDeviceEntity>> GetAllDevicesAsync();
+        public Task<ControlDeviceEntity> UpdateDeviceAsync(ControlDeviceEntity device);
+        public Task DeleteDeviceAsync(int id);
     }
 }

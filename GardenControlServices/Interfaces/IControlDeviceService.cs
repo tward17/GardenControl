@@ -9,10 +9,10 @@ namespace GardenControlServices.Interfaces
 {
     public interface IControlDeviceService
     {
-        public Task InsertDevice(ControlDevice device);
-        public Task<ControlDevice> GetDevice(int id);
-        public Task<IEnumerable<ControlDevice>> GetAllDevices();
-        public Task UpdateDevice(ControlDevice device);
-        public Task DeleteDevice(int id);
+        public Task<ControlDevice> InsertDeviceAsync(ControlDevice device);
+        public Task<ControlDevice> GetDeviceAsync(int id);
+        public Task<IEnumerable<ControlDevice>> GetAllDevicesAsync();
+        public Task<ControlDevice> UpdateDeviceAsync(ControlDevice device);
+        public Task DeleteDeviceAsync(int id);
     }
 }

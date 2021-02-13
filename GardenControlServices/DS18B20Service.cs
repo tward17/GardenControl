@@ -24,7 +24,7 @@ namespace GardenControlServices
 
         public async Task<TemperatureReading> GetTemperatureReading(int id)
         {
-            var controlDevice = await _controlDeviceService.GetDevice(id);
+            var controlDevice = await _controlDeviceService.GetDeviceAsync(id);
 
             ValidateControlDevice(controlDevice);
 

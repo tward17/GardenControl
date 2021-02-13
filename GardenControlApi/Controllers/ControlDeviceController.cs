@@ -2,6 +2,7 @@
 using GardenControlApi.Models;
 using GardenControlCore.Models;
 using GardenControlServices.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -29,46 +30,69 @@ namespace GardenControlApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<ControlDeviceDto>> Get()
         {
-            return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevices());
+            return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevicesAsync());
         }
 
         // GET api/<ControlDeviceController>/5
         [HttpGet("{id}")]
-        public async Task<ControlDeviceDto> Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ControlDeviceDto>> Get(int id)
         {
-            return _mapper.Map<ControlDeviceDto>(await _deviceControlService.GetDevice(id));
+            if (!(await ControlDeviceExists(id)))
+                return NotFound();
+
+            return _mapper.Map<ControlDeviceDto>(await _deviceControlService.GetDeviceAsync(id));
         }
 
         // POST api/<ControlDeviceController>
         [HttpPost]
-        public async Task Post([FromBody] ControlDeviceInsertDto value)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
         {
-            await _deviceControlService.InsertDevice(_mapper.Map<ControlDevice>(value));
+            var newControlDevice = await _deviceControlService.InsertDeviceAsync(_mapper.Map<ControlDevice>(value));
+
+            return CreatedAtAction(nameof(Get), new { id = newControlDevice.ControlDeviceId }, newControlDevice);
         }
 
         // PUT api/<ControlDeviceController>/5
         [HttpPut("{id}")]
-        public async Task Put(int id, [FromBody] ControlDeviceUpdateDto value)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] ControlDeviceDto value)
         {
-            var device = new ControlDevice
-            {
-                ControlDeviceId = id,
-                Alias = value.Alias,
-                Description = value.Description,
-                IsActive = value.IsActive,
-                GPIOPinNumber = value.GPIOPinNumber,
-                SerialNumber = value.SerialNumber,
-                DefaultState = value.DefaultState
-            };
+            if (id != value.ControlDeviceId)
+                return BadRequest();
 
-            await _deviceControlService.UpdateDevice(device);
+            if (!(await ControlDeviceExists(id)))
+                return NotFound();
+
+            await _deviceControlService.UpdateDeviceAsync(_mapper.Map<ControlDevice>(value));
+
+            return NoContent();
         }
 
         // DELETE api/<ControlDeviceController>/5
         [HttpDelete("{id}")]
-        public async Task Delete(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
         {
-            await _deviceControlService.DeleteDevice(id);
+            if (!(await ControlDeviceExists(id)))
+                return NotFound();
+
+            await _deviceControlService.DeleteDeviceAsync(id);
+
+            return NoContent();
+        }
+
+        private async Task<bool> ControlDeviceExists(int id)
+        {
+            if (await _deviceControlService.GetDeviceAsync(id) != null)
+                return true;
+
+            return false;
         }
     }
 }

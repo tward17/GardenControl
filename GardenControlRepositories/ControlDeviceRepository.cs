@@ -21,7 +21,7 @@ namespace GardenControlRepositories
             _logger = logger;
         }
 
-        public async Task DeleteDevice(int id)
+        public async Task DeleteDeviceAsync(int id)
         {
             var deviceEntity = await _context.ControlDeviceEntities
                 .Where(de => de.ControlDeviceId == id).FirstOrDefaultAsync();
@@ -44,12 +44,12 @@ namespace GardenControlRepositories
             }
         }
 
-        public async Task<IEnumerable<ControlDeviceEntity>> GetAllDevices()
+        public async Task<IEnumerable<ControlDeviceEntity>> GetAllDevicesAsync()
         {
             return await _context.ControlDeviceEntities.ToListAsync();
         }
 
-        public async Task<ControlDeviceEntity> GetDevice(int id)
+        public async Task<ControlDeviceEntity> GetDeviceAsync(int id)
         {
             var deviceEntity = await _context.ControlDeviceEntities
                 .Where(de => de.ControlDeviceId == id).FirstOrDefaultAsync();
@@ -57,7 +57,7 @@ namespace GardenControlRepositories
             return deviceEntity;
         }
 
-        public async Task InsertDevice(ControlDeviceEntity device)
+        public async Task<ControlDeviceEntity> InsertDeviceAsync(ControlDeviceEntity device)
         {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
@@ -71,9 +71,11 @@ namespace GardenControlRepositories
                 _logger.LogError($"Error inserting ControlDevice: {ex.Message}");
                 throw;
             }
+
+            return device;
         }
 
-        public async Task UpdateDevice(ControlDeviceEntity device)
+        public async Task<ControlDeviceEntity> UpdateDeviceAsync(ControlDeviceEntity device)
         {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
@@ -103,6 +105,8 @@ namespace GardenControlRepositories
                 _logger.LogError($"Error updating ControlDevice with ControlDeviceId: {deviceEntity.ControlDeviceId}. Error{ex.Message}");
                 throw;
             }
+
+            return deviceEntity;
         }
     }
 }

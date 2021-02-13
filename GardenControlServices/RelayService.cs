@@ -24,7 +24,7 @@ namespace GardenControlServices
 
         public async Task<RelayState> GetRelayState(int id)
         {
-            var controlDevice = await _controlDeviceService.GetDevice(id);
+            var controlDevice = await _controlDeviceService.GetDeviceAsync(id);
 
             ValidateControlDevice(controlDevice);
 
@@ -47,7 +47,7 @@ namespace GardenControlServices
 
         public async Task SetRelayState(int id, RelayState state)
         {
-            var controlDevice = await _controlDeviceService.GetDevice(id);
+            var controlDevice = await _controlDeviceService.GetDeviceAsync(id);
 
             ValidateControlDevice(controlDevice);
 
@@ -68,7 +68,7 @@ namespace GardenControlServices
 
         public async Task ToggleRelayState(int id)
         {
-            var controlDevice = await _controlDeviceService.GetDevice(id);
+            var controlDevice = await _controlDeviceService.GetDeviceAsync(id);
 
             ValidateControlDevice(controlDevice);
 

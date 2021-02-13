@@ -26,29 +26,42 @@ namespace GardenControlServices
             _mapper = mapper;
         }
 
-        public async Task DeleteDevice(int id)
+        public async Task DeleteDeviceAsync(int id)
         {
-            await _controlDeviceRepository.DeleteDevice(id);
+            await _controlDeviceRepository.DeleteDeviceAsync(id);
         }
 
-        public async Task<IEnumerable<ControlDevice>> GetAllDevices()
+        public async Task<IEnumerable<ControlDevice>> GetAllDevicesAsync()
         {
-            return _mapper.Map<IEnumerable<ControlDevice>>(await _controlDeviceRepository.GetAllDevices());
+            return _mapper.Map<IEnumerable<ControlDevice>>(await _controlDeviceRepository.GetAllDevicesAsync());
         }
 
-        public async Task<ControlDevice> GetDevice(int id)
+        public async Task<ControlDevice> GetDeviceAsync(int id)
         {
-            return _mapper.Map<ControlDevice>(await _controlDeviceRepository.GetDevice(id));
+            return _mapper.Map<ControlDevice>(await _controlDeviceRepository.GetDeviceAsync(id));
         }
 
-        public async Task InsertDevice(ControlDevice device)
+        public async Task<ControlDevice> InsertDeviceAsync(ControlDevice device)
         {
-            await _controlDeviceRepository.InsertDevice(_mapper.Map<ControlDeviceEntity>(device));
+            var newDevice = await _controlDeviceRepository.InsertDeviceAsync(_mapper.Map<ControlDeviceEntity>(device));
+
+            return _mapper.Map<ControlDevice>(newDevice);
         }
 
-        public async Task UpdateDevice(ControlDevice device)
+        public async Task<ControlDevice> UpdateDeviceAsync(ControlDevice device)
         {
-            await _controlDeviceRepository.UpdateDevice(_mapper.Map<ControlDeviceEntity>(device));
+            ControlDeviceEntity updatedDevice = null;
+            try
+            {
+                updatedDevice = await _controlDeviceRepository.UpdateDeviceAsync(_mapper.Map<ControlDeviceEntity>(device));
+            }
+            catch (Exception)
+            {
+                // TODO: What to do on expception?
+                throw;
+            }
+
+            return _mapper.Map<ControlDevice>(updatedDevice);
         }
     }
 }
