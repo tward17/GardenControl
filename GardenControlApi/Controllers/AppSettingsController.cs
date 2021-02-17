@@ -33,6 +33,7 @@ namespace GardenControlApi.Controllers
         /// Returns all settings
         /// </summary>
         /// <returns>All of the AppSettings</returns>
+        /// <reponse code="200">Returns the all AppSettings</reponse>
         // GET: api/<AppSettingsController>
         [HttpGet]
         public async Task<IEnumerable<AppSetting>> Get()
@@ -45,6 +46,8 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns>The AppSetting for the provided key</returns>
+        /// <reponse code="200">Returns the the specified AppSetting</reponse>
+        /// <reponse code="404">If the AppSetting cannot be found</reponse>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -70,7 +73,6 @@ namespace GardenControlApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<AppSetting>> Insert([FromBody] AppSettingDto value)
         {
             if (string.IsNullOrWhiteSpace(value.Key))
@@ -90,6 +92,9 @@ namespace GardenControlApi.Controllers
         /// <param name="id"></param>
         /// <param name="appSettingDto"></param>
         /// <returns></returns>
+        /// <reponse code="204">Returns when the AppSetting is updated sucessfully</reponse>
+        /// <reponse code="400">If the id parameter and id in the object do not match</reponse>
+        /// <reponse code="404">If the AppSetting cannot be found</reponse>
         // PUT api/<AppSettingsController>/5
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -120,6 +125,8 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        /// <reponse code="204">Returns when the AppSetting is deleted sucessfully</reponse>
+        /// <reponse code="404">If the AppSetting cannot be found</reponse>
         // DELETE api/<AppSettingsController>/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
