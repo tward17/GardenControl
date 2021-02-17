@@ -47,7 +47,7 @@ namespace GardenControlApi.Controllers
 
         // POST api/<ControlDeviceController>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
         {
             var newControlDevice = await _deviceControlService.InsertDeviceAsync(_mapper.Map<ControlDevice>(value));

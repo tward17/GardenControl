@@ -10,11 +10,14 @@ namespace GardenControlServices.Interfaces
     {
         public Task<Measurement> InsertMeasurementAsync(Measurement measurement);
         public Task<Measurement> GetMeasurementByIdAsync(long id);
-        public Task<List<Measurement>> GetAllMeasurementsAsync();
-        public Task<List<Measurement>> GetAllMeasurementByControlDeviceIdAsync(int controlDeviceId);
-        public Task<List<Measurement>> GetAllMeasurementsByControlDeviceIdAndDateRangeAsync(DateTime startDate, DateTime endDate, int controlDeviceId);
+        public Task<IEnumerable<Measurement>> GetAllMeasurementsAsync();
+        public Task<IEnumerable<Measurement>> GetAllMeasurementByControlDeviceIdAsync(int controlDeviceId);
+        public Task<IEnumerable<Measurement>> GetAllMeasurementsByControlDeviceIdAndDateRangeAsync(DateTime startDate, DateTime endDate, int controlDeviceId);
         public Task<Measurement> GetLatestMeasurementByControlDeviceIdAsync(int controlDeviceId);
         public Task<Measurement> UpdateMeasurementAsync(Measurement measurement);
         public Task DeleteMeasurementAsync(long id);
+
+        public List<MeasurementUnit> GetAllMeasurementUnits();
+        public MeasurementUnit GetMeasurementUnit(int id);
     }
 }
