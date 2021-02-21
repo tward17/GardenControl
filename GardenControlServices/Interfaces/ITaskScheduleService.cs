@@ -1,4 +1,5 @@
 ﻿using GardenControlCore.Models;
+using GardenControlCore.Scheduler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace GardenControlServices.Interfaces
         public Task DeleteTaskScheduleAsync(int id);
         #endregion
 
+        public List<TaskAction> GetTaskActions();
         public Task PerformScheduleTaskAction(int id);
     }
 }

@@ -18,6 +18,7 @@ namespace GardenControlApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AppSettingsController : ControllerBase
     {
         private IAppSettingsService _appSettingsService { get; init; }
@@ -33,7 +34,7 @@ namespace GardenControlApi.Controllers
         /// Returns all settings
         /// </summary>
         /// <returns>All of the AppSettings</returns>
-        /// <reponse code="200">Returns the all AppSettings</reponse>
+        /// <response code="200">Returns the all AppSettings</response>
         // GET: api/<AppSettingsController>
         [HttpGet]
         public async Task<IEnumerable<AppSetting>> Get()
@@ -46,8 +47,8 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns>The AppSetting for the provided key</returns>
-        /// <reponse code="200">Returns the the specified AppSetting</reponse>
-        /// <reponse code="404">If the AppSetting cannot be found</reponse>
+        /// <response code="200">Returns the the specified AppSetting</response>
+        /// <response code="404">If the AppSetting cannot be found</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,12 +63,12 @@ namespace GardenControlApi.Controllers
         }
 
         /// <summary>
-        /// Inserts setting
+        /// Creates an AppSetting
         /// </summary>
         /// <param name="value"></param>
         /// <returns>A newly created AppSetting</returns>
-        /// <reponse code="201">Returns the newly created AppSetting</reponse>
-        /// <reponse code="400">If the key or value is null or empty</reponse>
+        /// <response code="201">Returns the newly created AppSetting</response>
+        /// <response code="400">If the key or value is null or empty</response>
         /// <remarks>Any value set for CanBeUpdated property will be ignored and always set to true</remarks>
         // POST api/<AppSettingsController>
         [HttpPost]
@@ -92,9 +93,9 @@ namespace GardenControlApi.Controllers
         /// <param name="id"></param>
         /// <param name="appSettingDto"></param>
         /// <returns></returns>
-        /// <reponse code="204">Returns when the AppSetting is updated sucessfully</reponse>
-        /// <reponse code="400">If the id parameter and id in the object do not match</reponse>
-        /// <reponse code="404">If the AppSetting cannot be found</reponse>
+        /// <response code="204">Returns when the AppSetting is updated sucessfully</response>
+        /// <response code="400">If the id parameter and id in the object do not match</response>
+        /// <response code="404">If the AppSetting cannot be found</response>
         // PUT api/<AppSettingsController>/5
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -125,8 +126,8 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        /// <reponse code="204">Returns when the AppSetting is deleted sucessfully</reponse>
-        /// <reponse code="404">If the AppSetting cannot be found</reponse>
+        /// <response code="204">Returns when the AppSetting is deleted sucessfully</response>
+        /// <response code="404">If the AppSetting cannot be found</response>
         // DELETE api/<AppSettingsController>/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

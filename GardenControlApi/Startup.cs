@@ -46,6 +46,7 @@ namespace GardenControlApi
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
                 mc.AddProfile(new TaskScheduleProfile());
+                mc.AddProfile(new TaskScheduleProfileDto());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();

@@ -20,9 +20,7 @@ namespace GardenControlRepositories.Entities
         public string Name { get; set; }
         
         [Required]
-        [ForeignKey("TaskAction")]
-        public int TaskActionId { get; set; }
-        public virtual TaskAction TaskAction { get; set; }
+        public TaskActionId TaskActionId { get; set; }
 
         [Required]
         [ForeignKey("ControlDevice")]

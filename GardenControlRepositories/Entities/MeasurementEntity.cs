@@ -9,6 +9,7 @@ using GardenControlCore.Enums;
 
 namespace GardenControlRepositories.Entities
 {
+    [Table("Measurement")]
     public class MeasurementEntity
     {
         [Key]

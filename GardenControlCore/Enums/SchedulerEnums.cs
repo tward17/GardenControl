@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace GardenControlCore.Enums
 {
     public enum TaskActionId {
-        RelayOn,
+        RelayOn = 1,
         RelayOff,
         RelayToggle,
         DS18B20Reading,
@@ -16,7 +16,7 @@ namespace GardenControlCore.Enums
 
     public enum TimeIntervalUnit
     {
-        Seconds,
+        Seconds = 1,
         Minutes,
         Hours,
         Days
@@ -24,7 +24,7 @@ namespace GardenControlCore.Enums
 
     public enum TriggerType
     {
-        TimeOfDay,
+        TimeOfDay = 1,
         Interval,
         Sunrise,
         Sunset
