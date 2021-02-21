@@ -15,6 +15,8 @@ namespace GardenControlRepositories.Entities
         public int TaskActionId { get; init; }
         [Required]
         public string Name { get; set; }
+        [Required]
+        public int DeviceTypeId { get; set; }
 
         public virtual ICollection<TaskScheduleEntity> TaskSchedules { get; set; }
     }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GardenControlCore.Enums;
+using GardenControlCore.Scheduler;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -20,7 +22,7 @@ namespace GardenControlRepositories.Entities
         [Required]
         [ForeignKey("TaskAction")]
         public int TaskActionId { get; set; }
-        public virtual TaskActionEntity TaskAction { get; set; }
+        public virtual TaskAction TaskAction { get; set; }
 
         [Required]
         [ForeignKey("ControlDevice")]
@@ -30,23 +32,17 @@ namespace GardenControlRepositories.Entities
         public bool IsActive { get; set; }
 
         [Required]
-        [ForeignKey("TriggerType")]
-        public int TriggerTypeId { get; set; }
-        public virtual TriggerTypeEntity TriggerType { get; set; }
+        public TriggerType TriggerTypeId { get; set; }
 
         public DateTime? TriggerTimeOfDay { get; set; }
 
         public int? TriggerOffsetAmount { get; set; }
 
-        [ForeignKey("TriggerOffsetAmountTimeInterval")]
-        public int? TriggerOffsetAmountTimeIntervalId { get; set; }
-        public TimeIntervalEntity TriggerOffsetAmountTimeInterval { get; set; }
+        public TimeIntervalUnit? TriggerOffsetAmountTimeIntervalUnitId { get; set; }
 
         public int? IntervalAmount { get; set; }
 
-        [ForeignKey("IntervalAmountTimeInterval")]
-        public int? IntervalAmountTimeIntervalId { get; set; }
-        public TimeIntervalEntity IntervalAmountTimeInterval { get; set; }
+        public TimeIntervalUnit? IntervalAmountTimeIntervalUnitId { get; set; }
 
         [Required]
         public DateTime NextRunDateTime { get; set; }

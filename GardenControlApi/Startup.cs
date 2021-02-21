@@ -45,6 +45,7 @@ namespace GardenControlApi
                 mc.AddProfile(new AppSettingDtoProfile());
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
+                mc.AddProfile(new TaskScheduleProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
@@ -80,6 +81,8 @@ namespace GardenControlApi
             services.AddTransient<IControlDeviceService, ControlDeviceService>();
             services.AddTransient<IMeasurementRepository, MeasurementRepository>();
             services.AddTransient<IMeasurementService, MeasurementService>();
+            services.AddTransient<ITaskScheduleRepository, TaskScheduleRepository>();
+            services.AddTransient<ITaskScheduleService, TaskScheduleService>();
             services.AddTransient<DS18B20Service>();
             services.AddTransient<RelayService>();
             services.AddTransient<FloatSensorService>();
