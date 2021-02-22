@@ -26,6 +26,11 @@ namespace GardenControlApi.Controllers
             _taskScheduleService = taskScheduleService;
         }
 
+        /// <summary>
+        /// Returns All Task Schedules
+        /// </summary>
+        /// <returns>Returns all Task Schedules</returns>
+        /// <response code="200">Returns all Task Schedules</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskScheduleDto>))]
         public async Task<List<TaskScheduleDto>> Get()
@@ -33,6 +38,12 @@ namespace GardenControlApi.Controllers
             return _mapper.Map<List<TaskScheduleDto>>(await _taskScheduleService.GetAllTaskSchedulesAsync());
         }
 
+        /// <summary>
+        /// Returns All Task Schedules
+        /// </summary>
+        /// <returns>Returns all Task Schedules</returns>
+        /// <response code="200">Returns all Task Schedules</response>
+        /// <response code="404">Could not find Task Schedule with given id</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskScheduleDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,6 +55,12 @@ namespace GardenControlApi.Controllers
             return _mapper.Map<TaskScheduleDto>(await _taskScheduleService.GetTaskScheduleAsync(id));
         }
 
+        /// <summary>
+        /// Creates a new Task Schedule
+        /// </summary>
+        /// <returns>Creates a new Task Schedule</returns>
+        /// <response code="201">Task Schedule created successfully</response>
+        /// <response code="400"></response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +78,13 @@ namespace GardenControlApi.Controllers
             return CreatedAtAction(nameof(Get), new { id = newTaskSchedule.TaskScheduleId }, _mapper.Map<TaskScheduleDto>(newTaskSchedule));
         }
 
+        /// <summary>
+        /// Updates Task Schedule
+        /// </summary>
+        /// <returns>Updates Task Schedule</returns>
+        /// <response code="204">Task Schedule updated successfully</response>
+        /// <response code="400">Task Schedule id in url and object do not match</response>
+        /// <response code="404">Could not find Task Schedule with given id</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,9 +102,14 @@ namespace GardenControlApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes Task Schedule
+        /// </summary>
+        /// <returns>Deletes Task Schedule</returns>
+        /// <response code="204">Task Schedule deleted successfully</response>
+        /// <response code="404">Could not find Task Schedule with given id</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {

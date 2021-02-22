@@ -26,7 +26,15 @@ namespace GardenControlApi.Controllers.Devices
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Returns the current state of the relay
+        /// </summary>
+        /// <returns>Returns the current state of the relay</returns>
+        /// <response code="200">Returns relay state</response>
+        /// <response code="404">Could not find relay from id</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RelayDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<RelayDto> Get(int id)
         {
             var controlDeviceReading = await _relayService.GetRelayState(id);
@@ -42,10 +50,25 @@ namespace GardenControlApi.Controllers.Devices
             return response;
         }
 
-        [HttpPost]
-        public async Task Post(RelaySetStateDto relaySetState)
+        /// <summary>
+        /// Updates the current state of the relay
+        /// </summary>
+        /// <returns>Updates the current state of the relay</returns>
+        /// <response code="204">Relay state updated successfully</response>
+        /// <response code="400">Relay Id in url and object do not match</response>
+        /// <response code="404">Could not find relay from id</response>
+        [HttpPost("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Post(int id, RelaySetStateDto relaySetState)
         {
+            if (id != relaySetState.DeviceId)
+                return BadRequest();
+
             await _relayService.SetRelayState(relaySetState.DeviceId, relaySetState.State);
+
+            return NoContent();
         }
     }
 }

@@ -31,8 +31,12 @@ namespace GardenControlApi.Controllers.Devices
         /// Returns a reading value from the specified DS18B20 temperature probe
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>Returns the current temperature from the DS18B20 sensor</returns>
+        /// <response code="200">Returns temperature value</response>
+        /// <response code="404">Could not find DS18B20 probe from id</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DS18B20Dto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<DS18B20Dto> Get(int id)
         {
             var controlDeviceReading = await _dS18B20Service.GetTemperatureReading(id);

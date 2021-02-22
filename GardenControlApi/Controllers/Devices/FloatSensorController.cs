@@ -26,7 +26,15 @@ namespace GardenControlApi.Controllers.Devices
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Returns the current state of the float sensor
+        /// </summary>
+        /// <returns>Returns the current state of the float sensor</returns>
+        /// <response code="200">Returns float sensor state</response>
+        /// <response code="404">Could not find float sensor from id</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloatSensorDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<FloatSensorDto> Get(int id)
         {
             var controlDeviceReading = await _floatSensorService.GetFloatSensorState(id);

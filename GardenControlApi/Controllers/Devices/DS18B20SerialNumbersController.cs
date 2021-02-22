@@ -31,8 +31,10 @@ namespace GardenControlApi.Controllers.Devices
         /// Returns the serial numbers of all the attached probes to the specified GPIO Pin.
         /// Useful for getting serial numbers to register each probe.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of serial numbers</returns>
+        /// <response code="200">Returns a list of the 1-wire protocol serial numbers attached to the GPIO pin</response>
         [HttpGet("{gpioPin}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
         public async Task<List<string>> GetSerialNumbers(int gpioPin)
         {
             var serialNumbers = await _dS18B20Service.GetSerialNumbers(gpioPin);

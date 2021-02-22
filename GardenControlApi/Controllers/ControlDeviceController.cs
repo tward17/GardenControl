@@ -26,14 +26,23 @@ namespace GardenControlApi.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<ControlDeviceController>
+        /// <summary>
+        /// Returns all Control Devices
+        /// </summary>
+        /// <returns>Returns all Control Devices</returns>
+        /// <response code="200">Returns all control devices</response>
         [HttpGet]
         public async Task<IEnumerable<ControlDeviceDto>> Get()
         {
             return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevicesAsync());
         }
 
-        // GET api/<ControlDeviceController>/5
+        /// <summary>
+        /// Returns a Control Device
+        /// </summary>
+        /// <returns>Returns the specified Control Device</returns>
+        /// <response code="200">Returns the specified control device</response>
+        /// <response code="404">Could not find a control device with the specified id</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,7 +54,11 @@ namespace GardenControlApi.Controllers
             return _mapper.Map<ControlDeviceDto>(await _deviceControlService.GetDeviceAsync(id));
         }
 
-        // POST api/<ControlDeviceController>
+        /// <summary>
+        /// Creates a Control Device
+        /// </summary>
+        /// <returns>Returns the created Control Device</returns>
+        /// <response code="201">Control Device created successfully</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
@@ -55,7 +68,13 @@ namespace GardenControlApi.Controllers
             return CreatedAtAction(nameof(Get), new { id = newControlDevice.ControlDeviceId }, newControlDevice);
         }
 
-        // PUT api/<ControlDeviceController>/5
+        /// <summary>
+        /// Updates a Control Device
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="204">Control Device successfully updated</response>
+        /// <response code="400">Control Device Id in url and object do not match</response>
+        /// <response code="404">Could not find a control device with the specified id</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,7 +92,12 @@ namespace GardenControlApi.Controllers
             return NoContent();
         }
 
-        // DELETE api/<ControlDeviceController>/5
+        /// <summary>
+        /// Deletes a Control Device
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="204">Control Device successfully deleted</response>
+        /// <response code="404">Could not find a control device with the specified id</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
