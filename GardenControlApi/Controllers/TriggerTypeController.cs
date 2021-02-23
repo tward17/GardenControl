@@ -16,33 +16,45 @@ namespace GardenControlApi.Controllers
     [ApiController]
     public class TriggerTypeController : Controller
     {
-        private ITaskScheduleService _taskScheduleService { get; init; }
-        private IMapper _mapper { get; init; }
-
-        public TriggerTypeController(IMapper mapper, ITaskScheduleService taskScheduleService)
-        {
-            _mapper = mapper;
-            _taskScheduleService = taskScheduleService;
-        }
-
+        /// <summary>
+        /// Returns all the possible Trigger Types
+        /// </summary>
+        /// <returns>List of Trigger Types</returns>
+        /// <response code="200">Returns all the possible Trigger Types</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TriggerType))]
-        public async Task<List<TriggerType>> Get()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TriggerTypeDto>))]
+        public List<TriggerTypeDto> Get()
         {
-            return _taskScheduleService.GetTaskActions();
+            var triggerTypes = new List<TriggerTypeDto>();
+
+            foreach(var triggerId in Enum.GetValues(typeof(TriggerType)))
+            {
+                triggerTypes.Add(new TriggerTypeDto { Id = (int)triggerId, Name = Enum.GetName(typeof(TriggerType), triggerId)});
+            }
+
+            return triggerTypes;
         }
 
+        /// <summary>
+        /// Returns a single Trigger Type
+        /// </summary>
+        /// <returns>The speicied Trigger Type</returns>
+        /// <response code="200">Returns the specified Trigger Type</response>
+        /// <response code="404">Could not find Trigger Type with id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TriggerType))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TriggerTypeDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TriggerType>> Get(TriggerType id)
+        public ActionResult<TriggerTypeDto> Get(int id)
         {
-            var taskAction = _taskScheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault();
-
-            if (taskAction == null)
+            if (Enum.IsDefined(typeof(TriggerType), id))
+            {
+                var triggerType = new TriggerTypeDto { Id = id, Name = Enum.GetName(typeof(TriggerType), id) };
+                return triggerType;
+            }
+            else
+            {
                 return NotFound();
-
-            return taskAction;
+            }
         }
     }
 }

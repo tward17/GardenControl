@@ -25,13 +25,24 @@ namespace GardenControlApi.Controllers
             _taskScheduleService = taskScheduleService;
         }
 
+        /// <summary>
+        /// Returns all the possible Task Actions
+        /// </summary>
+        /// <returns>List of Task Actions</returns>
+        /// <response code="200">Returns all the possible Task Actions</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskAction))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskAction>))]
         public async Task<List<TaskAction>> Get()
         {
             return _taskScheduleService.GetTaskActions();
         }
 
+        /// <summary>
+        /// Returns a single Task Actions
+        /// </summary>
+        /// <returns>The speicied Task Actions</returns>
+        /// <response code="200">Returns the specified Task Action</response>
+        /// <response code="404">Could not find Task Action with id</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskAction))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

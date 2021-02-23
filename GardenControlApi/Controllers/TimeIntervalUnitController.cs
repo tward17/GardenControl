@@ -16,33 +16,45 @@ namespace GardenControlApi.Controllers
     [ApiController]
     public class TimeIntervalUnitController : Controller
     {
-        private ITaskScheduleService _taskScheduleService { get; init; }
-        private IMapper _mapper { get; init; }
-
-        public TimeIntervalUnitController(IMapper mapper, ITaskScheduleService taskScheduleService)
-        {
-            _mapper = mapper;
-            _taskScheduleService = taskScheduleService;
-        }
-
+        /// <summary>
+        /// Returns all the possible Time Interval Units
+        /// </summary>
+        /// <returns>List of Time Interval Units</returns>
+        /// <response code="200">Returns all the possible Time Interval Units</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TimeIntervalUnit))]
-        public async Task<List<TimeIntervalUnit>> Get()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TimeIntervalUnitDto>))]
+        public List<TimeIntervalUnitDto> Get()
         {
-            return _taskScheduleService.GetTaskActions();
+            var intervalunits = new List<TimeIntervalUnitDto>();
+
+            foreach(var intervalUnitId in Enum.GetValues(typeof(TimeIntervalUnit)))
+            {
+                intervalunits.Add(new TimeIntervalUnitDto { Id = (int)intervalUnitId, Name = Enum.GetName(typeof(TimeIntervalUnit), intervalUnitId)});
+            }
+
+            return intervalunits;
         }
 
+        /// <summary>
+        /// Returns a single Time Interval Unit
+        /// </summary>
+        /// <returns>The speicied Time Interval Unit</returns>
+        /// <response code="200">Returns the specified Time Interval Unit</response>
+        /// <response code="404">Could not find Time Interval Unit with id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TimeIntervalUnit))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TimeIntervalUnitDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TimeIntervalUnit>> Get(TaskActionId id)
+        public ActionResult<TimeIntervalUnitDto> Get(int id)
         {
-            var taskAction = _taskScheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault();
-
-            if (taskAction == null)
+            if (Enum.IsDefined(typeof(TimeIntervalUnit), id))
+            {
+                var timeInterval = new TimeIntervalUnitDto { Id = id, Name = Enum.GetName(typeof(TimeIntervalUnit), id)};
+                return timeInterval;
+            }
+            else
+            {
                 return NotFound();
-
-            return taskAction;
+            }
         }
     }
 }
