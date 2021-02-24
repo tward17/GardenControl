@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GardenControlRepositories.Interfaces
 {
-    public interface ITaskScheduleRepository
+    public interface IScheduleRepository
     {
         //#region TaskAction
         //public Task<TaskActionEntity> InsertTaskActionAsync(TaskActionEntity taskAction);
@@ -18,11 +18,11 @@ namespace GardenControlRepositories.Interfaces
         //#endregion
 
         #region TaskSchedule
-        public Task<TaskScheduleEntity> InsertTaskScheduleAsync(TaskScheduleEntity taskSchedule);
-        public Task<IEnumerable<TaskScheduleEntity>> GetAllTaskSchedulesAsync();
-        public Task<IEnumerable<TaskScheduleEntity>> GetDueTaskSchedulesAsync();
-        public Task<TaskScheduleEntity> GetTaskScheduleAsync(int id);
-        public Task<TaskScheduleEntity> UpdateTaskScheduleAsync(TaskScheduleEntity taskSchedule);
+        public Task<ScheduleEntity> InsertTaskScheduleAsync(ScheduleEntity taskSchedule);
+        public Task<IEnumerable<ScheduleEntity>> GetAllTaskSchedulesAsync();
+        public Task<IEnumerable<ScheduleEntity>> GetDueTaskSchedulesAsync();
+        public Task<ScheduleEntity> GetTaskScheduleAsync(int id);
+        public Task<ScheduleEntity> UpdateTaskScheduleAsync(ScheduleEntity taskSchedule);
         public Task UpdateTaskScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime);
         public Task DeleteTaskScheduleAsync(int id);
         #endregion

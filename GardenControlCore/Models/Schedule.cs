@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace GardenControlCore.Models
 {
-    public class TaskSchedule
+    public class Schedule
     {
-        public int TaskScheduleId { get; init; }
+        public int ScheduleId { get; init; }
 
         public string Name { get; set; }
-
-        public TaskAction TaskAction { get; set; }
-
-        public ControlDevice ControlDevice { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -33,5 +29,7 @@ namespace GardenControlCore.Models
         public TimeIntervalUnit? IntervalAmountTimeIntervalUnit { get; set; }
 
         public DateTime NextRunDateTime { get; set; }
+
+        public ICollection<ScheduleTask> ScheduleTasks { get; set; }
     }
 }

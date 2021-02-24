@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace GardenControlRepositories
 {
-    public class TaskScheduleRepository : ITaskScheduleRepository
+    public class ScheduleRepository : IScheduleRepository
     {
         private GardenControlContext _context { get; init; }
-        private ILogger<TaskScheduleRepository> _logger { get; init; }
+        private ILogger<ScheduleRepository> _logger { get; init; }
 
-        public TaskScheduleRepository(GardenControlContext context, ILogger<TaskScheduleRepository> logger)
+        public ScheduleRepository(GardenControlContext context, ILogger<ScheduleRepository> logger)
         {
             _context = context;
             _logger = logger;
@@ -24,7 +24,7 @@ namespace GardenControlRepositories
         public async Task DeleteTaskScheduleAsync(int id)
         {
             var taskScheduleEntity = await _context.TaskScheduleEntities
-                .Where(t => t.TaskScheduleId == id).FirstOrDefaultAsync();
+                .Where(t => t.ScheduleId == id).FirstOrDefaultAsync();
 
             if (taskScheduleEntity == null)
             {
@@ -44,7 +44,7 @@ namespace GardenControlRepositories
             }
         }
 
-        public async Task<IEnumerable<TaskScheduleEntity>> GetAllTaskSchedulesAsync()
+        public async Task<IEnumerable<ScheduleEntity>> GetAllTaskSchedulesAsync()
         {
             var taskScheduleEntities = await _context.TaskScheduleEntities
                 .ToListAsync();
@@ -52,7 +52,7 @@ namespace GardenControlRepositories
             return taskScheduleEntities;
         }
 
-        public async Task<IEnumerable<TaskScheduleEntity>> GetDueTaskSchedulesAsync()
+        public async Task<IEnumerable<ScheduleEntity>> GetDueTaskSchedulesAsync()
         {
             var taskScheduleEntities = await _context.TaskScheduleEntities
                 .Where(t => t.IsActive && t.NextRunDateTime <= DateTime.Now)
@@ -61,16 +61,16 @@ namespace GardenControlRepositories
             return taskScheduleEntities;
         }
 
-        public async Task<TaskScheduleEntity> GetTaskScheduleAsync(int id)
+        public async Task<ScheduleEntity> GetTaskScheduleAsync(int id)
         {
             var taskScheduleEntity = await _context.TaskScheduleEntities
-                .Where(t => t.TaskScheduleId == id)
+                .Where(t => t.ScheduleId == id)
                 .FirstOrDefaultAsync();
 
             return taskScheduleEntity;
         }
 
-        public async Task<TaskScheduleEntity> InsertTaskScheduleAsync(TaskScheduleEntity taskSchedule)
+        public async Task<ScheduleEntity> InsertTaskScheduleAsync(ScheduleEntity taskSchedule)
         {
             if (taskSchedule == null) throw new ArgumentNullException(nameof(taskSchedule));
 
@@ -88,17 +88,16 @@ namespace GardenControlRepositories
             return taskSchedule;
         }
 
-        public async Task<TaskScheduleEntity> UpdateTaskScheduleAsync(TaskScheduleEntity taskSchedule)
+        public async Task<ScheduleEntity> UpdateTaskScheduleAsync(ScheduleEntity taskSchedule)
         {
             var taskScheduleEntity = await _context.TaskScheduleEntities
-                .Where(t => t.TaskScheduleId == taskSchedule.TaskScheduleId)
+                .Where(t => t.ScheduleId == taskSchedule.ScheduleId)
                 .FirstOrDefaultAsync();
 
             if (taskScheduleEntity == null)
                 throw new Exception();
 
             taskScheduleEntity.Name = taskSchedule.Name;
-            taskScheduleEntity.ControlDeviceId = taskSchedule.ControlDeviceId;
             taskScheduleEntity.TriggerTypeId = taskSchedule.TriggerTypeId;
             taskScheduleEntity.TriggerTimeOfDay = taskSchedule.TriggerTimeOfDay;
             taskScheduleEntity.TriggerOffsetAmount = taskSchedule.TriggerOffsetAmount;
@@ -114,7 +113,7 @@ namespace GardenControlRepositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating TaskSchedule: {taskSchedule.ControlDeviceId}, {ex.Message}");
+                _logger.LogError($"Error updating TaskSchedule: {taskSchedule.ScheduleId}, {ex.Message}");
                 throw;
             }
 
@@ -124,7 +123,7 @@ namespace GardenControlRepositories
         public async Task UpdateTaskScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
         {
             var taskScheduleEntity = await _context.TaskScheduleEntities
-                .Where(t => t.TaskScheduleId == id)
+                .Where(t => t.ScheduleId == id)
                 .FirstOrDefaultAsync();
 
             if (taskScheduleEntity == null)

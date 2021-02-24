@@ -2,22 +2,26 @@
 using GardenControlCore.Scheduler;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace GardenControlApi.Models
+namespace GardenControlRepositories.Entities
 {
-    public class TaskScheduleDto
+    [Table("Schedule")]
+    public class ScheduleEntity
     {
-        public int TaskScheduleId { get; set; }
+        [Key]
+        public int ScheduleId { get; init; }
+        
+        [Required]
         public string Name { get; set; }
-
-        public TaskActionId TaskActionId { get; set; }
-
-        public int ControlDeviceId { get; set; }
-
+        
         public bool IsActive { get; set; }
 
+        [Required]
         public TriggerType TriggerTypeId { get; set; }
 
         public DateTime? TriggerTimeOfDay { get; set; }
@@ -30,6 +34,9 @@ namespace GardenControlApi.Models
 
         public TimeIntervalUnit? IntervalAmountTimeIntervalUnitId { get; set; }
 
+        [Required]
         public DateTime NextRunDateTime { get; set; }
+
+        public virtual ICollection<ScheduleTaskEntity> ScheduleTasks { get; set; }
     }
 }

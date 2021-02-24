@@ -9,17 +9,11 @@ using System.Threading.Tasks;
 
 namespace GardenControlApi.MapProfiles
 {
-    public class TaskScheduleProfileDto : Profile
+    public class ScheduleProfileDto : Profile
     {
-        public TaskScheduleProfileDto()
+        public ScheduleProfileDto()
         {
-            CreateMap<TaskScheduleDto, TaskSchedule>()
-                .ForMember(dest =>
-                dest.ControlDevice,
-                opt => opt.MapFrom(src => new ControlDevice { ControlDeviceId = src.ControlDeviceId }))
-                .ForMember(dest =>
-                dest.TaskAction,
-                opt => opt.MapFrom(src => new TaskAction { TaskActionId = src.TaskActionId }))
+            CreateMap<ScheduleDto, Schedule>()
                 .ForMember(dest =>
                 dest.TriggerType,
                 opt => opt.MapFrom(src => src.TriggerTypeId))
@@ -28,15 +22,12 @@ namespace GardenControlApi.MapProfiles
                 opt => opt.MapFrom(src => src.TriggerOffsetAmountTimeIntervalUnitId))
                 .ForMember(dest =>
                 dest.IntervalAmountTimeIntervalUnit,
-                opt => opt.MapFrom(src => src.IntervalAmountTimeIntervalUnitId));
+                opt => opt.MapFrom(src => src.IntervalAmountTimeIntervalUnitId))
+                .ForMember(dest =>
+                dest.ScheduleTasks,
+                opt => opt.MapFrom(src => src.ScheduleTasks));
 
-            CreateMap<TaskSchedule, TaskScheduleDto>()
-                .ForMember(dest =>
-                dest.ControlDeviceId,
-                opt => opt.MapFrom(src => src.ControlDevice.ControlDeviceId))
-                .ForMember(dest =>
-                dest.TaskActionId,
-                opt => opt.MapFrom(src => src.TaskAction.TaskActionId))
+            CreateMap<Schedule, ScheduleDto>()
                 .ForMember(dest =>
                 dest.TriggerTypeId,
                 opt => opt.MapFrom(src => src.TriggerType))
@@ -45,8 +36,7 @@ namespace GardenControlApi.MapProfiles
                 opt => opt.MapFrom(src => src.TriggerOffsetAmountTimeIntervalUnit))
                 .ForMember(dest =>
                 dest.IntervalAmountTimeIntervalUnitId,
-                opt => opt.MapFrom(src => src.IntervalAmountTimeIntervalUnit))
-                .ReverseMap();
+                opt => opt.MapFrom(src => src.IntervalAmountTimeIntervalUnit));
         }
     }
 }

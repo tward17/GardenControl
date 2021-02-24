@@ -2,6 +2,7 @@
 using GardenControlCore.Models;
 using GardenControlCore.Scheduler;
 using GardenControlRepositories.Entities;
+using GardenControlRepositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,11 @@ using System.Threading.Tasks;
 
 namespace GardenControlServices.MapProfiles
 {
-    public class TaskScheduleProfile : Profile
+    public class ScheduleProfile : Profile
     {
-        public TaskScheduleProfile()
+        public ScheduleProfile()
         {
-            CreateMap<TaskSchedule, TaskScheduleEntity>()
-                .ForMember(dest =>
-                dest.ControlDeviceId,
-                opt => opt.MapFrom(src => src.ControlDevice.ControlDeviceId))
-                .ForMember(dest =>
-                dest.TaskActionId,
-                opt => opt.MapFrom(src => src.TaskAction.TaskActionId))
+            CreateMap<Schedule, ScheduleEntity>()
                 .ForMember(dest =>
                 dest.TriggerTypeId,
                 opt => opt.MapFrom(src => src.TriggerType))
@@ -31,13 +26,7 @@ namespace GardenControlServices.MapProfiles
                 dest.IntervalAmountTimeIntervalUnitId,
                 opt => opt.MapFrom(src => src.IntervalAmountTimeIntervalUnit));
 
-            CreateMap<TaskScheduleEntity, TaskSchedule>()
-                .ForMember(dest =>
-                dest.ControlDevice,
-                opt => opt.MapFrom(src => new ControlDevice { ControlDeviceId = src.ControlDeviceId }))
-                .ForMember(dest =>
-                dest.TaskAction,
-                opt => opt.MapFrom(src => new TaskAction { TaskActionId = src.TaskActionId }))
+            CreateMap<ScheduleEntity, Schedule>()
                 .ForMember(dest =>
                 dest.TriggerType,
                 opt => opt.MapFrom(src => src.TriggerTypeId))

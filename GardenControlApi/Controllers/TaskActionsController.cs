@@ -16,13 +16,13 @@ namespace GardenControlApi.Controllers
     [ApiController]
     public class TaskActionsController : Controller
     {
-        private ITaskScheduleService _taskScheduleService { get; init; }
+        private IScheduleService _scheduleService { get; init; }
         private IMapper _mapper { get; init; }
 
-        public TaskActionsController(IMapper mapper, ITaskScheduleService taskScheduleService)
+        public TaskActionsController(IMapper mapper, IScheduleService scheduleService)
         {
             _mapper = mapper;
-            _taskScheduleService = taskScheduleService;
+            _scheduleService = scheduleService;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskAction>))]
         public async Task<List<TaskAction>> Get()
         {
-            return _taskScheduleService.GetTaskActions();
+            return _scheduleService.GetTaskActions();
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TaskAction>> Get(TaskActionId id)
         {
-            var taskAction = _taskScheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault();
+            var taskAction = _scheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault();
 
             if (taskAction == null)
                 return NotFound();

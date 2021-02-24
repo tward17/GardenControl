@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 
 namespace GardenControlServices
 {
-    public class TaskScheduleService : ITaskScheduleService
+    public class scheduleService : IScheduleService
     {
         private IControlDeviceRepository _controlDeviceRepository { get; init; }
-        private ILogger<TaskScheduleService> _logger { get; init; }
-        private ITaskScheduleRepository _taskScheduleRepository { get; init; }
+        private ILogger<scheduleService> _logger { get; init; }
+        private IScheduleRepository _scheduleRepository { get; init; }
         private IMapper _mapper { get; init; }
         private RelayService _relayService { get; init; }
         private DS18B20Service _ds18b20Service { get; init; }
@@ -27,9 +27,9 @@ namespace GardenControlServices
 
         private List<TaskAction> _TaskActionsList { get; init; }
 
-        public TaskScheduleService(IControlDeviceRepository controlDeviceRepository,
-            ILogger<TaskScheduleService> logger, 
-            ITaskScheduleRepository taskScheduleRepository, 
+        public scheduleService(IControlDeviceRepository controlDeviceRepository,
+            ILogger<scheduleService> logger, 
+            IScheduleRepository scheduleRepository, 
             IMapper mapper,
             RelayService relayService,
             DS18B20Service dS18B20Service,
@@ -38,7 +38,7 @@ namespace GardenControlServices
         {
             _controlDeviceRepository = controlDeviceRepository;
             _logger = logger;
-            _taskScheduleRepository = taskScheduleRepository;
+            _scheduleRepository = scheduleRepository;
             _mapper = mapper;
             _relayService = relayService;
             _ds18b20Service = dS18B20Service;
@@ -80,49 +80,71 @@ namespace GardenControlServices
             };
         }
 
-        #region TaskSchedule
+        #region Schedule
 
-        public async Task DeleteTaskScheduleAsync(int id)
+        public async Task DeleteScheduleAsync(int id)
         {
-            await _taskScheduleRepository.DeleteTaskScheduleAsync(id);
+            await _scheduleRepository.DeleteTaskScheduleAsync(id);
         }
 
-        public async Task<IEnumerable<TaskSchedule>> GetAllTaskSchedulesAsync()
+        public async Task<IEnumerable<Schedule>> GetAllSchedulesAsync()
         {
-            return _mapper.Map<IEnumerable<TaskSchedule>>(await _taskScheduleRepository.GetAllTaskSchedulesAsync());
+            return _mapper.Map<IEnumerable<Schedule>>(await _scheduleRepository.GetAllTaskSchedulesAsync());
         }
 
-        public async Task<IEnumerable<TaskSchedule>> GetDueTaskSchedulesAsync()
+        public async Task<IEnumerable<Schedule>> GetDueSchedulesAsync()
         {
-            return _mapper.Map<IEnumerable<TaskSchedule>>(await _taskScheduleRepository.GetDueTaskSchedulesAsync());
+            return _mapper.Map<IEnumerable<Schedule>>(await _scheduleRepository.GetDueTaskSchedulesAsync());
         }
 
-        public async Task<TaskSchedule> GetTaskScheduleAsync(int id)
+        public async Task<Schedule> GetScheduleAsync(int id)
         {
-            return _mapper.Map<TaskSchedule>(await _taskScheduleRepository.GetTaskScheduleAsync(id));
+            return _mapper.Map<Schedule>(await _scheduleRepository.GetTaskScheduleAsync(id));
         }
 
-        public async Task<TaskSchedule> InsertTaskScheduleAsync(TaskSchedule taskSchedule)
+        public async Task<Schedule> InsertScheduleAsync(Schedule schedule)
         {
-            if (taskSchedule == null)
-                throw new ArgumentNullException(nameof(taskSchedule));
+            if (schedule == null)
+                throw new ArgumentNullException(nameof(schedule));
 
             // TODO: Return a useful validation message
-            if (!TaskScheduleIsValid(taskSchedule))
+            if (!ScheduleIsValid(schedule))
                 throw new Exception();
 
-            var newTaskScheduleEntity = _mapper.Map<TaskScheduleEntity>(taskSchedule);
+            var newScheduleEntity = new ScheduleEntity
+            {
+                Name = schedule.Name,
+                IsActive = schedule.IsActive,
+                TriggerTypeId = schedule.TriggerType,
+                TriggerTimeOfDay = schedule.TriggerTimeOfDay,
+                TriggerOffsetAmount = schedule.TriggerOffsetAmount,
+                TriggerOffsetAmountTimeIntervalUnitId = schedule.TriggerOffsetAmountTimeIntervalUnit,
+                IntervalAmount = schedule.IntervalAmount,
+                IntervalAmountTimeIntervalUnitId = schedule.IntervalAmountTimeIntervalUnit,
+                ScheduleTasks = new List<ScheduleTaskEntity>()
+            };
 
-            newTaskScheduleEntity.ControlDevice = await _controlDeviceRepository.GetDeviceAsync(newTaskScheduleEntity.ControlDeviceId);
+            foreach (var task in schedule.ScheduleTasks)
+            {
+                var controlDevice = await _controlDeviceRepository.GetDeviceAsync(task.ControlDevice.ControlDeviceId);
 
-            newTaskScheduleEntity.NextRunDateTime = CalculateNextRunTime(taskSchedule);
+                newScheduleEntity.ScheduleTasks.Add(new ScheduleTaskEntity
+                {
+                    Schedule = newScheduleEntity,
+                    ControlDevice = controlDevice,
+                    IsActive = task.IsActive,
+                    TaskActionId = task.TaskAction.TaskActionId
+                });
+            }
 
-            TaskSchedule insertedTaskSchedule;
+            newScheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
+
+            Schedule insertedTaskSchedule;
 
             try
             {
-                newTaskScheduleEntity = await _taskScheduleRepository.InsertTaskScheduleAsync(newTaskScheduleEntity);
-                insertedTaskSchedule = _mapper.Map<TaskSchedule>(newTaskScheduleEntity);
+                newScheduleEntity = await _scheduleRepository.InsertTaskScheduleAsync(newScheduleEntity);
+                insertedTaskSchedule = _mapper.Map<Schedule>(newScheduleEntity);
             }
             catch (Exception)
             {
@@ -134,45 +156,75 @@ namespace GardenControlServices
             return insertedTaskSchedule;
         }
 
-        public async Task<TaskSchedule> UpdateTaskScheduleAsync(TaskSchedule taskSchedule)
+        public async Task<Schedule> UpdateScheduleAsync(Schedule schedule)
         {
-            if (taskSchedule == null)
-                throw new ArgumentNullException(nameof(taskSchedule));
+            if (schedule == null)
+                throw new ArgumentNullException(nameof(schedule));
 
             // TODO: Return a useful validation message
-            if (!TaskScheduleIsValid(taskSchedule))
+            if (!ScheduleIsValid(schedule))
                 throw new Exception();
 
             throw new NotImplementedException();
         }
 
-        public async Task UpdateTaskScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
+        public async Task UpdateScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
         {
-            await _taskScheduleRepository.UpdateTaskScheduleNextRunTimeAsync(id, nextRunDateTime);
+            await _scheduleRepository.UpdateTaskScheduleNextRunTimeAsync(id, nextRunDateTime);
         }
 
         #endregion
 
+        #region Schedule Tasks
+        public Task<ScheduleTask> InsertScheduleTaskAsync(ScheduleTask scheduleTask)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Schedule>> GetSchedulesTasksAsync(int scheduleId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ScheduleTask> GetScheduleTaskAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ScheduleTask> UpdateScheduleTaskAsync(ScheduleTask scheduleTask)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteScheduleTaskAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
         #region Validate TaskSchedule
-        private bool TaskScheduleIsValid(TaskSchedule taskSchedule)
+        private bool ScheduleIsValid(Schedule schedule)
         {
             var isValid = true;
 
-            switch (taskSchedule.TriggerType)
+            if (schedule.ScheduleTasks == null || !schedule.ScheduleTasks.Any())
+                isValid = false;
+
+            switch (schedule.TriggerType)
             {
                 case GardenControlCore.Enums.TriggerType.TimeOfDay:
-                    if (!taskSchedule.TriggerTimeOfDay.HasValue)
+                    if (!schedule.TriggerTimeOfDay.HasValue)
                         isValid = false;
                     break;
                 case GardenControlCore.Enums.TriggerType.Interval:
-                    if (!taskSchedule.IntervalAmount.HasValue)
+                    if (!schedule.IntervalAmount.HasValue)
                         isValid = false;
 
-                    if (!taskSchedule.IntervalAmountTimeIntervalUnit.HasValue)
+                    if (!schedule.IntervalAmountTimeIntervalUnit.HasValue)
                         isValid = false;
 
                     // Do not allow offsets for interval triggers
-                    if (taskSchedule.TriggerOffsetAmount.HasValue)
+                    if (schedule.TriggerOffsetAmount.HasValue)
                         isValid = false;
 
                     break;
@@ -183,11 +235,11 @@ namespace GardenControlServices
             }
 
             // trigger offset must have a specified interval unit
-            if (taskSchedule.TriggerOffsetAmount.HasValue && !taskSchedule.TriggerOffsetAmountTimeIntervalUnit.HasValue)
+            if (schedule.TriggerOffsetAmount.HasValue && !schedule.TriggerOffsetAmountTimeIntervalUnit.HasValue)
                 isValid = false;
 
             // interval amount must have a specified interval unit
-            if (taskSchedule.IntervalAmount.HasValue && !taskSchedule.IntervalAmountTimeIntervalUnit.HasValue)
+            if (schedule.IntervalAmount.HasValue && !schedule.IntervalAmountTimeIntervalUnit.HasValue)
                 isValid = false;
 
             return isValid;
@@ -197,27 +249,27 @@ namespace GardenControlServices
         #region ScheduleActions
         public async Task PerformScheduleTaskAction(int id)
         {
-            var taskSchedule = await GetTaskScheduleAsync(id);
+            var scheduleTask = await GetScheduleTaskAsync(id);
 
-            if (taskSchedule == null)
+            if (scheduleTask == null)
                 throw new Exception();
 
-            switch ((TaskActionId)taskSchedule.TaskAction.TaskActionId)
+            switch (scheduleTask.TaskAction.TaskActionId)
             {
                 case TaskActionId.RelayOn:
-                    await RelayOnTask(taskSchedule.ControlDevice.ControlDeviceId);
+                    await RelayOnTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
                 case TaskActionId.RelayOff:
-                    await RelayOffTask(taskSchedule.ControlDevice.ControlDeviceId);
+                    await RelayOffTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
                 case TaskActionId.RelayToggle:
-                    await RelayToggleTask(taskSchedule.ControlDevice.ControlDeviceId);
+                    await RelayToggleTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
                 case TaskActionId.DS18B20Reading:
-                    await DS18B20ReadingTask(taskSchedule.ControlDevice.ControlDeviceId);
+                    await DS18B20ReadingTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
                 case TaskActionId.FloatSensorStateReading:
-                    await FloatSensorReadingTask(taskSchedule.ControlDevice.ControlDeviceId);
+                    await FloatSensorReadingTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
             }
 
@@ -227,21 +279,21 @@ namespace GardenControlServices
         /// <summary>
         /// Caclulates the next runtime for a task. Should not be used to get the next planned task run time.
         /// </summary>
-        /// <param name="taskSchedule"></param>
+        /// <param name="schedule"></param>
         /// <returns></returns>
-        public DateTime CalculateNextRunTime(TaskSchedule taskSchedule)
+        public DateTime CalculateNextRunTime(Schedule schedule)
         {
-            if (taskSchedule == null)
+            if (schedule == null)
                 throw new ArgumentNullException();
 
             var nextRunTime = new DateTime();
             var currentDateTime = DateTime.Now;
-            switch (taskSchedule.TriggerType)
+            switch (schedule.TriggerType)
             {
                 case GardenControlCore.Enums.TriggerType.TimeOfDay:
                     nextRunTime = currentDateTime.Date
-                            .AddHours(taskSchedule.TriggerTimeOfDay.Value.Hour)
-                            .AddMinutes(taskSchedule.TriggerTimeOfDay.Value.Minute);
+                            .AddHours(schedule.TriggerTimeOfDay.Value.Hour)
+                            .AddMinutes(schedule.TriggerTimeOfDay.Value.Minute);
                     
                     if (nextRunTime < currentDateTime)
                     {
@@ -252,17 +304,17 @@ namespace GardenControlServices
                     break;
                 case GardenControlCore.Enums.TriggerType.Interval:
 
-                    if(taskSchedule.NextRunDateTime != DateTime.MinValue && taskSchedule.NextRunDateTime <= currentDateTime)
+                    if(schedule.NextRunDateTime != DateTime.MinValue && schedule.NextRunDateTime <= currentDateTime)
                     {
-                        nextRunTime = GetAdjustedTime(taskSchedule.NextRunDateTime, taskSchedule.IntervalAmount.Value, taskSchedule.IntervalAmountTimeIntervalUnit.Value);
+                        nextRunTime = GetAdjustedTime(schedule.NextRunDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
                     }
-                    else if(taskSchedule.NextRunDateTime > currentDateTime)
+                    else if(schedule.NextRunDateTime > currentDateTime)
                     {
-                        nextRunTime = taskSchedule.NextRunDateTime;
+                        nextRunTime = schedule.NextRunDateTime;
                     }
                     else
                     {
-                        nextRunTime = GetAdjustedTime(currentDateTime, taskSchedule.IntervalAmount.Value, taskSchedule.IntervalAmountTimeIntervalUnit.Value);
+                        nextRunTime = GetAdjustedTime(currentDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
                     }
 
                     break;
@@ -285,9 +337,9 @@ namespace GardenControlServices
             }
 
             // Adjust next run time for any offsets
-            if (taskSchedule.TriggerOffsetAmount.HasValue)
+            if (schedule.TriggerOffsetAmount.HasValue)
             {
-                nextRunTime = GetAdjustedTime(nextRunTime, taskSchedule.TriggerOffsetAmount.Value, taskSchedule.TriggerOffsetAmountTimeIntervalUnit.Value);
+                nextRunTime = GetAdjustedTime(nextRunTime, schedule.TriggerOffsetAmount.Value, schedule.TriggerOffsetAmountTimeIntervalUnit.Value);
             }
 
             return nextRunTime;
