@@ -35,7 +35,7 @@ namespace GardenControlApi.Controllers.Devices
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RelayDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<RelayDto> Get(int id)
+        public async Task<RelayDto> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _relayService.GetRelayState(id);
 
@@ -61,7 +61,7 @@ namespace GardenControlApi.Controllers.Devices
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Post(int id, RelaySetStateDto relaySetState)
+        public async Task<IActionResult> Post([FromRoute] int id, [FromBody] RelaySetStateDto relaySetState)
         {
             if (id != relaySetState.DeviceId)
                 return BadRequest();

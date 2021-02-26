@@ -44,7 +44,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TimeIntervalUnitDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TimeIntervalUnitDto> Get(int id)
+        public ActionResult<TimeIntervalUnitDto> Get([FromRoute] int id)
         {
             if (Enum.IsDefined(typeof(TimeIntervalUnit), id))
             {

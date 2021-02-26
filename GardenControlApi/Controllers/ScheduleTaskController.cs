@@ -47,7 +47,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ScheduleTaskDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ScheduleTaskDto>> Get(int id)
+        public async Task<ActionResult<ScheduleTaskDto>> Get([FromRoute] int id)
         {
             if (!(await ScheduleTaskExists(id)))
                 return NotFound();
@@ -64,7 +64,7 @@ namespace GardenControlApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ScheduleTaskDto>> Insert(ScheduleTaskDto scheduleTaskDto)
+        public async Task<ActionResult<ScheduleTaskDto>> Insert([FromBody] ScheduleTaskDto scheduleTaskDto)
         {
             var newScheduleTask = _mapper.Map<ScheduleTask>(scheduleTaskDto);
 
@@ -84,7 +84,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromQuery]int id, [FromBody]ScheduleTaskDto scheduleTaskDto)
+        public async Task<IActionResult> Update([FromRoute]int id, [FromBody]ScheduleTaskDto scheduleTaskDto)
         {
             if (!(await ScheduleTaskExists(id)))
                 return NotFound();
@@ -106,7 +106,7 @@ namespace GardenControlApi.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!(await ScheduleTaskExists(id)))
                 return NotFound();

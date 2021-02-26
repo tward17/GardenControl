@@ -46,7 +46,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ControlDeviceDto>> Get(int id)
+        public async Task<ActionResult<ControlDeviceDto>> Get([FromRoute] int id)
         {
             if (!(await ControlDeviceExists(id)))
                 return NotFound();
@@ -79,7 +79,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, [FromBody] ControlDeviceDto value)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ControlDeviceDto value)
         {
             if (id != value.ControlDeviceId)
                 return BadRequest();
@@ -101,7 +101,7 @@ namespace GardenControlApi.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!(await ControlDeviceExists(id)))
                 return NotFound();

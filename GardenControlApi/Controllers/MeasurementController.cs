@@ -45,7 +45,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MeasurementDto>> Get(long id)
+        public async Task<ActionResult<MeasurementDto>> Get([FromRoute] long id)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
@@ -61,7 +61,7 @@ namespace GardenControlApi.Controllers
         /// <response code="400">Could not find Measurement from id</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<MeasurementDto>> Insert(MeasurementDto measurementDto)
+        public async Task<ActionResult<MeasurementDto>> Insert([FromBody] MeasurementDto measurementDto)
         {
             var newMeasurement = await _measurementService.InsertMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
             return CreatedAtAction(nameof(Get), new { id = newMeasurement.MeasurementId }, newMeasurement);
@@ -78,7 +78,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(long id, MeasurementDto measurementDto)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] MeasurementDto measurementDto)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
@@ -100,7 +100,7 @@ namespace GardenControlApi.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Delete([FromRoute] long id)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();

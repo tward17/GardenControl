@@ -32,7 +32,7 @@ else
                     <tr>
                         <td>@setting.Key</td>
                         <td>@setting.Value</td>
-                        <td class="text-right"><a @onclick="@(() => UpdateSetting(setting.Key))"><span class="oi oi-pencil" aria-hidden="true"></span></a> <a @onclick="@(() => DeleteSetting(setting.Key))"><span class="oi oi-delete" aria-hidden="true"></span></a></td>
+                        <td class="text-right"><a @onclick="@(() => UpdateSetting(setting.AppSettingId))"><span class="oi oi-pencil" aria-hidden="true"></span></a> <a @onclick="@(() => DeleteSetting(setting.AppSettingId))"><span class="oi oi-delete" aria-hidden="true"></span></a></td>
                     </tr>
                 }
             }
@@ -50,10 +50,10 @@ else
 
 
 @code {
-    private ICollection<AppSetting> appSettings;
+    private ICollection<AppSettingDto> appSettings;
     private string newSettingKey;
     private string newSettingValue;
-    private AppSetting updatingSetting = null;
+    private AppSettingDto updatingSetting = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,14 +68,14 @@ else
             return;
         }
 
-        var newAppSetting = new AppSetting { Key = newSettingKey, Value = newSettingValue };
+        var newAppSettingDto = new AppSettingDto { Key = newSettingKey, Value = newSettingValue };
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
 
         try
         {
-            await client.AppSettingsAsync(newAppSetting);
-            appSettings.Add(newAppSetting);
+            await client.AppSettingsAsync(newAppSettingDto);
+            appSettings.Add(newAppSettingDto);
             newSettingKey = "";
             newSettingValue = "";
         }
@@ -89,9 +89,9 @@ else
         }
     }
 
-    private async void UpdateSetting(string key)
+    private async void UpdateSetting(int id)
     {
-        updatingSetting = appSettings.Where(s => s.Key == key).Single();
+        updatingSetting = appSettings.Where(s => s.AppSettingId == id).Single();
         this.StateHasChanged();
     }
 
@@ -100,7 +100,7 @@ else
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         try
         {
-            await client.AppSettings3Async(updatingSetting.Key, updatingSetting.Value);
+            await client.AppSettings3Async(updatingSetting.AppSettingId, updatingSetting);
             updatingSetting = null;
         }
         catch (Exception)
@@ -117,13 +117,13 @@ else
         this.StateHasChanged();
     }
 
-    private async void DeleteSetting(string key)
+    private async void DeleteSetting(int id)
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         try
         {
-            await client.AppSettings4Async(key);
-            appSettings.Remove(appSettings.Where(a => a.Key == key).Single());
+            await client.AppSettings4Async(id);
+            appSettings.Remove(appSettings.Where(a => a.AppSettingId == id).Single());
         }
         catch (Exception ex)
         {

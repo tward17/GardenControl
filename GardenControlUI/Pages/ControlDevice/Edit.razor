@@ -107,7 +107,7 @@ else
             throw new ArgumentNullException(nameof(controlDevice));
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        client.ControlDevice3Async(controlDeviceId, new GardenControlUI.ControlDevice
+        client.ControlDevice3Async(controlDeviceId, new GardenControlUI.ControlDeviceDto
         {
             Alias = controlDevice.Alias,
             Description = controlDevice.Description,

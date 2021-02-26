@@ -37,7 +37,7 @@ namespace GardenControlApi.Controllers.Devices
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DS18B20Dto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<DS18B20Dto> Get(int id)
+        public async Task<DS18B20Dto> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _dS18B20Service.GetTemperatureReading(id);
 
@@ -58,7 +58,7 @@ namespace GardenControlApi.Controllers.Devices
         /// <response code="200">Returns a list of the 1-wire protocol serial numbers attached to the GPIO pin</response>
         [HttpGet("SerialNumbers/{gpioPin}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
-        public async Task<List<string>> GetSerialNumbers(int gpioPin)
+        public async Task<List<string>> GetSerialNumbers([FromRoute] int gpioPin)
         {
             var serialNumbers = await _dS18B20Service.GetSerialNumbers(gpioPin);
 

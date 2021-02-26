@@ -47,7 +47,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ScheduleDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ScheduleDto>> Get(int id)
+        public async Task<ActionResult<ScheduleDto>> Get([FromRoute] int id)
         {
             if (!(await ScheduleExists(id)))
                 return NotFound();
@@ -64,7 +64,7 @@ namespace GardenControlApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ScheduleDto>> Insert(ScheduleDto scheduleDto)
+        public async Task<ActionResult<ScheduleDto>> Insert([FromBody] ScheduleDto scheduleDto)
         {
             var newSchedule = _mapper.Map<Schedule>(scheduleDto);
 
@@ -84,7 +84,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, ScheduleDto scheduleDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ScheduleDto scheduleDto)
         {
             if (!(await ScheduleExists(id)))
                 return NotFound();
@@ -106,7 +106,7 @@ namespace GardenControlApi.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!(await ScheduleExists(id)))
                 return NotFound();
@@ -125,7 +125,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}/Tasks")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScheduleTaskDto>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ScheduleTaskDto>>> GetTasks(int id)
+        public async Task<ActionResult<List<ScheduleTaskDto>>> GetTasks([FromRoute] int id)
         {
             if (!(await ScheduleExists(id)))
                 return NotFound();

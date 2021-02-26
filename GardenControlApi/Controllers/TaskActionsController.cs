@@ -31,10 +31,10 @@ namespace GardenControlApi.Controllers
         /// <returns>List of Task Actions</returns>
         /// <response code="200">Returns all the possible Task Actions</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskAction>))]
-        public async Task<List<TaskAction>> Get()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskActionDto>))]
+        public async Task<IEnumerable<TaskActionDto>> Get()
         {
-            return _scheduleService.GetTaskActions();
+            return _mapper.Map<List<TaskActionDto>>(_scheduleService.GetTaskActions());
         }
 
         /// <summary>
@@ -44,11 +44,11 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns the specified Task Action</response>
         /// <response code="404">Could not find Task Action with id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskAction))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskActionDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TaskAction>> Get(TaskActionId id)
+        public async Task<ActionResult<TaskActionDto>> Get([FromRoute] TaskActionId id)
         {
-            var taskAction = _scheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault();
+            var taskAction = _mapper.Map<TaskActionDto>(_scheduleService.GetTaskActions().Where(ta => ta.TaskActionId == id).FirstOrDefault());
 
             if (taskAction == null)
                 return NotFound();

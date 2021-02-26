@@ -14,7 +14,7 @@
     private async void UpdateRelayState()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        await client.Relay2Async(new RelaySetStateDto { DeviceId = ControlDeviceId,
+        await client.Relay2Async(ControlDeviceId, new RelaySetStateDto { DeviceId = ControlDeviceId,
             State = (IsRelayOn ? RelayState._0 : RelayState._1) });
     }
 

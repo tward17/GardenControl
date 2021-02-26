@@ -35,7 +35,7 @@ namespace GardenControlApi.Controllers.Devices
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloatSensorDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<FloatSensorDto> Get(int id)
+        public async Task<FloatSensorDto> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _floatSensorService.GetFloatSensorState(id);
 

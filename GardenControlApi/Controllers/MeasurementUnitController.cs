@@ -31,7 +31,7 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns all measurement units</response>
         /// <response code="404">Could not find Measurement from id</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementUnitDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MeasurementUnitDto>))]
         public async Task<List<MeasurementUnitDto>> Get()
         {
             return _mapper.Map<List<MeasurementUnitDto>>(_measurementService.GetAllMeasurementUnits());
@@ -46,7 +46,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementUnitDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MeasurementUnitDto>> Get(int id)
+        public async Task<ActionResult<MeasurementUnitDto>> Get([FromRoute] int id)
         {
             var measurementUnit = _mapper.Map<MeasurementUnitDto>(_measurementService.GetMeasurementUnit(id));
 

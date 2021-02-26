@@ -44,7 +44,7 @@ namespace GardenControlApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TriggerTypeDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TriggerTypeDto> Get(int id)
+        public ActionResult<TriggerTypeDto> Get([FromRoute] int id)
         {
             if (Enum.IsDefined(typeof(TriggerType), id))
             {
