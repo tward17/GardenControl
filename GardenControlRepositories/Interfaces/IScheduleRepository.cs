@@ -17,14 +17,23 @@ namespace GardenControlRepositories.Interfaces
         //public Task DeleteTaskActionAsync(int id);
         //#endregion
 
-        #region TaskSchedule
-        public Task<ScheduleEntity> InsertTaskScheduleAsync(ScheduleEntity taskSchedule);
-        public Task<IEnumerable<ScheduleEntity>> GetAllTaskSchedulesAsync();
-        public Task<IEnumerable<ScheduleEntity>> GetDueTaskSchedulesAsync();
-        public Task<ScheduleEntity> GetTaskScheduleAsync(int id);
-        public Task<ScheduleEntity> UpdateTaskScheduleAsync(ScheduleEntity taskSchedule);
-        public Task UpdateTaskScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime);
-        public Task DeleteTaskScheduleAsync(int id);
+        #region Schedule
+        public Task<ScheduleEntity> InsertScheduleAsync(ScheduleEntity schedule);
+        public Task<IEnumerable<ScheduleEntity>> GetAllSchedulesAsync();
+        public Task<IEnumerable<ScheduleEntity>> GetDueSchedulesAsync();
+        public Task<ScheduleEntity> GetScheduleByIdAsync(int id);
+        public Task<ScheduleEntity> UpdateScheduleAsync(ScheduleEntity schedule);
+        public Task UpdateScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime);
+        public Task DeleteScheduleAsync(int id);
+        #endregion
+
+        #region Schedule Task
+        public Task<ScheduleTaskEntity> InsertScheduleTaskAsync(ScheduleTaskEntity scheduleTask);
+        public Task<IEnumerable<ScheduleTaskEntity>> GetAllScheduleTasksAsync();
+        public Task<IEnumerable<ScheduleTaskEntity>> GetScheduleTasksAsync(int scheduleTaskId);
+        public Task<ScheduleTaskEntity> GetScheduleTaskByIdAsync(int id);
+        public Task<ScheduleTaskEntity> UpdateScheduleTaskAsync(ScheduleTaskEntity scheduleTask);
+        public Task DeleteScheduleTaskAsync(int id);
         #endregion
 
         //#region TimeInterval

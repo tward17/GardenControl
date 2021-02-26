@@ -69,7 +69,7 @@ namespace GardenControlApi.Controllers
             var newSchedule = _mapper.Map<Schedule>(scheduleDto);
 
             newSchedule = await _scheduleService.InsertScheduleAsync(newSchedule);
-            
+
             return CreatedAtAction(nameof(Get), new { id = newSchedule.ScheduleId }, _mapper.Map<ScheduleDto>(newSchedule));
         }
 
@@ -114,6 +114,23 @@ namespace GardenControlApi.Controllers
             await _scheduleService.DeleteScheduleAsync(id);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Returns All Tasks for the specified Schedule
+        /// </summary>
+        /// <returns>Returns list of Schedule Tasks</returns>
+        /// <response code="200">Returns Schedules Tasks for Schedule</response>
+        /// <response code="404">Could not find Schedule with given id</response>
+        [HttpGet("{id}/Tasks")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ScheduleTaskDto>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<ScheduleTaskDto>>> GetTasks(int id)
+        {
+            if (!(await ScheduleExists(id)))
+                return NotFound();
+
+            return _mapper.Map<List<ScheduleTaskDto>>(await _scheduleService.GetScheduleTasksAsync(id));
         }
 
         private async Task<bool> ScheduleExists(int id)

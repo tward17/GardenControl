@@ -17,7 +17,7 @@ namespace GardenControlRepositories.Entities
 
         [Required]
         [ForeignKey("Schedule")]
-        public int SheduleId { get; set; }
+        public int ScheduleId { get; set; }
         public virtual ScheduleEntity Schedule { get; set; }
 
         [Required]

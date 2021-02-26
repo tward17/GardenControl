@@ -23,13 +23,13 @@ namespace GardenControlServices.MapProfiles
             //dest.TaskActionId,
             //opt => opt.MapFrom(src => src.TaskAction.TaskActionId));
 
-            CreateMap<ScheduleTaskEntity, ScheduleTask>();
-                //.ForMember(dest =>
-                //dest.ControlDevice,
-                //opt => opt.MapFrom(src => src.ControlDevice))
-                //.ForMember(dest =>
-                //dest.TaskAction,
-                //opt => opt.MapFrom(src => new TaskAction { TaskActionId = src.TaskActionId }));
+            CreateMap<ScheduleTaskEntity, ScheduleTask>()
+                .ForMember(dest =>
+                dest.ControlDevice,
+                opt => opt.MapFrom(src => src.ControlDevice))
+                .ForMember(dest =>
+                dest.TaskAction,
+                opt => opt.MapFrom(src => new TaskAction { TaskActionId = src.TaskActionId }));
         }
     }
 }

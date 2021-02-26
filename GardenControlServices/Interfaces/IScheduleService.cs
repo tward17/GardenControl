@@ -23,7 +23,8 @@ namespace GardenControlServices.Interfaces
 
         #region ScheduleTasks
         public Task<ScheduleTask> InsertScheduleTaskAsync(ScheduleTask scheduleTask);
-        public Task<IEnumerable<Schedule>> GetSchedulesTasksAsync(int scheduleId);
+        public Task<IEnumerable<ScheduleTask>> GetAllScheduleTasksAsync();
+        public Task<IEnumerable<ScheduleTask>> GetScheduleTasksAsync(int scheduleId);
         public Task<ScheduleTask> GetScheduleTaskAsync(int id);
         public Task<ScheduleTask> UpdateScheduleTaskAsync(ScheduleTask scheduleTask);
         public Task DeleteScheduleTaskAsync(int id);

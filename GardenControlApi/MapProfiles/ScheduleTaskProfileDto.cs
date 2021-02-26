@@ -23,6 +23,9 @@ namespace GardenControlApi.MapProfiles
 
             CreateMap<ScheduleTask, ScheduleTaskDto>()
                 .ForMember(dest =>
+                dest.ScheduleId,
+                opt => opt.MapFrom(src => src.Schedule.ScheduleId))
+                .ForMember(dest =>
                 dest.ControlDeviceId,
                 opt => opt.MapFrom(src => src.ControlDevice.ControlDeviceId))
                 .ForMember(dest =>

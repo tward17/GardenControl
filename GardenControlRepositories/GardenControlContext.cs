@@ -15,9 +15,8 @@ namespace GardenControlRepositories
         public DbSet<ControlDeviceEntity> ControlDeviceEntities { get; set; }
         public DbSet<MeasurementEntity> MeasurementEntities { get; set; }
         
-        public DbSet<ScheduleEntity> TaskScheduleEntities { get; set; }
-        //public DbSet<TaskActionEntity> TaskActionEntities { get; set; }
-        //public DbSet<TimeIntervalEntity> TimeIntervalEntities { get; set; }
-        //public DbSet<TriggerTypeEntity> TriggerTypeEntities { get; set; }
+        public DbSet<ScheduleEntity> ScheduleEntities { get; set; }
+        public DbSet<ScheduleTaskEntity> ScheduleTaskEntities { get; set; }
+
     }
 }

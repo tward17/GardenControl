@@ -21,115 +21,106 @@ namespace GardenControlRepositories
             _logger = logger;
         }
 
-        public async Task DeleteTaskScheduleAsync(int id)
+        #region Schedule
+        public async Task DeleteScheduleAsync(int id)
         {
-            var taskScheduleEntity = await _context.TaskScheduleEntities
+            var scheduleEntity = await _context.ScheduleEntities
                 .Where(t => t.ScheduleId == id).FirstOrDefaultAsync();
 
-            if (taskScheduleEntity == null)
+            if (scheduleEntity == null)
             {
-                _logger.LogWarning($"Tried deleting TaskSchedule that does not exist, TaskScheduleId: {id}");
+                _logger.LogWarning($"Tried deleting Schedule that does not exist, ScheduleId: {id}");
                 return;
             }
 
             try
             {
-                _context.TaskScheduleEntities.Remove(taskScheduleEntity);
+                _context.ScheduleEntities.Remove(scheduleEntity);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting TaskSchedule ({id}): {ex.Message}");
+                _logger.LogError($"Error deleting Schedule ({id}): {ex.Message}");
                 throw;
             }
         }
 
-        public async Task<IEnumerable<ScheduleEntity>> GetAllTaskSchedulesAsync()
+        public async Task<IEnumerable<ScheduleEntity>> GetAllSchedulesAsync()
         {
-            var taskScheduleEntities = await _context.TaskScheduleEntities
+            var taskScheduleEntities = await _context.ScheduleEntities
+                .Include(s => s.ScheduleTasks)
+                .ThenInclude(st => st.ControlDevice)
                 .ToListAsync();
 
             return taskScheduleEntities;
         }
 
-        public async Task<IEnumerable<ScheduleEntity>> GetDueTaskSchedulesAsync()
+        public async Task<IEnumerable<ScheduleEntity>> GetDueSchedulesAsync()
         {
-            var taskScheduleEntities = await _context.TaskScheduleEntities
+            var taskScheduleEntities = await _context.ScheduleEntities
+                .Include(s => s.ScheduleTasks)
+                .ThenInclude(st => st.ControlDevice)
                 .Where(t => t.IsActive && t.NextRunDateTime <= DateTime.Now)
                 .ToListAsync();
 
             return taskScheduleEntities;
         }
 
-        public async Task<ScheduleEntity> GetTaskScheduleAsync(int id)
+        public async Task<ScheduleEntity> GetScheduleByIdAsync(int id)
         {
-            var taskScheduleEntity = await _context.TaskScheduleEntities
+            var scheduleEntity = await _context.ScheduleEntities
+                .Include(s => s.ScheduleTasks)
+                .ThenInclude(st => st.ControlDevice)
                 .Where(t => t.ScheduleId == id)
                 .FirstOrDefaultAsync();
 
-            return taskScheduleEntity;
+            return scheduleEntity;
         }
 
-        public async Task<ScheduleEntity> InsertTaskScheduleAsync(ScheduleEntity taskSchedule)
+        public async Task<ScheduleEntity> InsertScheduleAsync(ScheduleEntity schedule)
         {
-            if (taskSchedule == null) throw new ArgumentNullException(nameof(taskSchedule));
+            if (schedule == null) throw new ArgumentNullException(nameof(schedule));
 
             try
             {
-                _context.TaskScheduleEntities.Add(taskSchedule);
+                _context.ScheduleEntities.Add(schedule);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error inserting TaskSchedule: {ex.Message}");
+                _logger.LogError($"Error inserting Schedule: {ex.Message}");
                 throw;
             }
 
-            return taskSchedule;
+            return schedule;
         }
 
-        public async Task<ScheduleEntity> UpdateTaskScheduleAsync(ScheduleEntity taskSchedule)
+        public async Task<ScheduleEntity> UpdateScheduleAsync(ScheduleEntity schedule)
         {
-            var taskScheduleEntity = await _context.TaskScheduleEntities
-                .Where(t => t.ScheduleId == taskSchedule.ScheduleId)
-                .FirstOrDefaultAsync();
-
-            if (taskScheduleEntity == null)
-                throw new Exception();
-
-            taskScheduleEntity.Name = taskSchedule.Name;
-            taskScheduleEntity.TriggerTypeId = taskSchedule.TriggerTypeId;
-            taskScheduleEntity.TriggerTimeOfDay = taskSchedule.TriggerTimeOfDay;
-            taskScheduleEntity.TriggerOffsetAmount = taskSchedule.TriggerOffsetAmount;
-            taskScheduleEntity.TriggerOffsetAmountTimeIntervalUnitId = taskSchedule.TriggerOffsetAmountTimeIntervalUnitId;
-            taskScheduleEntity.IntervalAmount = taskSchedule.IntervalAmount;
-            taskScheduleEntity.IntervalAmountTimeIntervalUnitId = taskSchedule.IntervalAmountTimeIntervalUnitId;
-            taskScheduleEntity.IsActive = taskSchedule.IsActive;
-            taskScheduleEntity.NextRunDateTime = taskSchedule.NextRunDateTime;
-
             try
             {
+                _context.Entry(schedule).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating TaskSchedule: {taskSchedule.ScheduleId}, {ex.Message}");
+                _logger.LogError($"Error updating Schedule: {schedule.ScheduleId}, {ex.Message}");
                 throw;
             }
 
-            return taskScheduleEntity;
+            return schedule;
         }
 
-        public async Task UpdateTaskScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
+        public async Task UpdateScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
         {
-            var taskScheduleEntity = await _context.TaskScheduleEntities
+            var scheduleEntity = await _context.ScheduleEntities
                 .Where(t => t.ScheduleId == id)
                 .FirstOrDefaultAsync();
 
-            if (taskScheduleEntity == null)
+            if (scheduleEntity == null)
                 throw new Exception();
 
-            taskScheduleEntity.NextRunDateTime = nextRunDateTime;
+            scheduleEntity.NextRunDateTime = nextRunDateTime;
 
             try
             {
@@ -137,9 +128,96 @@ namespace GardenControlRepositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating TaskSchedule NextRunTime: {id}, {ex.Message}");
+                _logger.LogError($"Error updating Schedule NextRunTime: {id}, {ex.Message}");
                 throw;
             }
         }
+        #endregion
+
+        #region Schedule Task
+        public async Task<ScheduleTaskEntity> InsertScheduleTaskAsync(ScheduleTaskEntity scheduleTask)
+        {
+            if (scheduleTask == null) throw new ArgumentNullException(nameof(scheduleTask));
+
+            try
+            {
+                _context.ScheduleTaskEntities.Add(scheduleTask);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error inserting ScheduleTask: {ex.Message}");
+                throw;
+            }
+
+            return scheduleTask;
+        }
+
+        public async Task<IEnumerable<ScheduleTaskEntity>> GetAllScheduleTasksAsync()
+        {
+            return await _context.ScheduleTaskEntities
+                .Include(st => st.Schedule)
+                .Include(st => st.ControlDevice)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ScheduleTaskEntity>> GetScheduleTasksAsync(int scheduleId)
+        {
+            return await _context.ScheduleTaskEntities
+                .Include(st => st.Schedule)
+                .Include(st => st.ControlDevice)
+                .Where(st => st.ScheduleId == scheduleId)
+                .ToListAsync();
+        }
+
+        public async Task<ScheduleTaskEntity> GetScheduleTaskByIdAsync(int id)
+        {
+            return await _context.ScheduleTaskEntities
+                .Include(st => st.Schedule)
+                .Include(st => st.ControlDevice)
+                .Where(st => st.ScheduleTaskId == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<ScheduleTaskEntity> UpdateScheduleTaskAsync(ScheduleTaskEntity scheduleTask)
+        {
+            try
+            {
+                _context.Entry(scheduleTask).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error updating ScheduleTask: {scheduleTask.ScheduleTaskId}, {ex.Message}");
+                throw;
+            }
+
+            return scheduleTask;
+        }
+
+        public async Task DeleteScheduleTaskAsync(int id)
+        {
+            var scheduleTaskEntity = await _context.ScheduleTaskEntities
+                .Where(st => st.ScheduleTaskId == id).FirstOrDefaultAsync();
+
+            if (scheduleTaskEntity == null)
+            {
+                _logger.LogWarning($"Tried deleting Schedule Task that does not exist, ScheduleTaskId: {id}");
+                return;
+            }
+
+            try
+            {
+                _context.ScheduleTaskEntities.Remove(scheduleTaskEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error deleting Schedule Task ({id}): {ex.Message}");
+                throw;
+            }
+        }
+        #endregion
+
     }
 }

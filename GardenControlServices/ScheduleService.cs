@@ -84,22 +84,24 @@ namespace GardenControlServices
 
         public async Task DeleteScheduleAsync(int id)
         {
-            await _scheduleRepository.DeleteTaskScheduleAsync(id);
+            await _scheduleRepository.DeleteScheduleAsync(id);
         }
 
         public async Task<IEnumerable<Schedule>> GetAllSchedulesAsync()
         {
-            return _mapper.Map<IEnumerable<Schedule>>(await _scheduleRepository.GetAllTaskSchedulesAsync());
+            var scheduleEntities = await _scheduleRepository.GetAllSchedulesAsync();
+
+            return _mapper.Map<IEnumerable<Schedule>>(scheduleEntities);
         }
 
         public async Task<IEnumerable<Schedule>> GetDueSchedulesAsync()
         {
-            return _mapper.Map<IEnumerable<Schedule>>(await _scheduleRepository.GetDueTaskSchedulesAsync());
+            return _mapper.Map<IEnumerable<Schedule>>(await _scheduleRepository.GetDueSchedulesAsync());
         }
 
         public async Task<Schedule> GetScheduleAsync(int id)
         {
-            return _mapper.Map<Schedule>(await _scheduleRepository.GetTaskScheduleAsync(id));
+            return _mapper.Map<Schedule>(await _scheduleRepository.GetScheduleByIdAsync(id));
         }
 
         public async Task<Schedule> InsertScheduleAsync(Schedule schedule)
@@ -139,21 +141,21 @@ namespace GardenControlServices
 
             newScheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
 
-            Schedule insertedTaskSchedule;
+            Schedule insertedSchedule;
 
             try
             {
-                newScheduleEntity = await _scheduleRepository.InsertTaskScheduleAsync(newScheduleEntity);
-                insertedTaskSchedule = _mapper.Map<Schedule>(newScheduleEntity);
+                newScheduleEntity = await _scheduleRepository.InsertScheduleAsync(newScheduleEntity);
+                insertedSchedule = _mapper.Map<Schedule>(newScheduleEntity);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError($"Error inserting Schedule: {ex.Message}");
                 throw;
             }
             
 
-            return insertedTaskSchedule;
+            return insertedSchedule;
         }
 
         public async Task<Schedule> UpdateScheduleAsync(Schedule schedule)
@@ -165,50 +167,124 @@ namespace GardenControlServices
             if (!ScheduleIsValid(schedule))
                 throw new Exception();
 
-            throw new NotImplementedException();
+            // get the existing schedule entity from the database, including tasks
+            var scheduleEntity = await _scheduleRepository.GetScheduleByIdAsync(schedule.ScheduleId);
+
+            if (scheduleEntity == null)
+                throw new Exception();
+
+            scheduleEntity.Name = schedule.Name;
+            scheduleEntity.IsActive = schedule.IsActive;
+            scheduleEntity.TriggerTypeId = schedule.TriggerType;
+            scheduleEntity.TriggerTimeOfDay = schedule.TriggerTimeOfDay;
+            scheduleEntity.TriggerOffsetAmount = schedule.TriggerOffsetAmount;
+            scheduleEntity.TriggerOffsetAmountTimeIntervalUnitId = schedule.TriggerOffsetAmountTimeIntervalUnit;
+            scheduleEntity.IntervalAmount = schedule.IntervalAmount;
+            scheduleEntity.IntervalAmountTimeIntervalUnitId = schedule.IntervalAmountTimeIntervalUnit;
+            scheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
+
+            try
+            {
+                await _scheduleRepository.UpdateScheduleAsync(scheduleEntity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error updating Schedule: {schedule.ScheduleId}, {ex.Message}");
+                throw;
+            }
+
+            return _mapper.Map<Schedule>(scheduleEntity);
         }
 
         public async Task UpdateScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime)
         {
-            await _scheduleRepository.UpdateTaskScheduleNextRunTimeAsync(id, nextRunDateTime);
+            await _scheduleRepository.UpdateScheduleNextRunTimeAsync(id, nextRunDateTime);
         }
 
         #endregion
 
         #region Schedule Tasks
-        public Task<ScheduleTask> InsertScheduleTaskAsync(ScheduleTask scheduleTask)
+        public async Task<ScheduleTask> InsertScheduleTaskAsync(ScheduleTask scheduleTask)
         {
-            throw new NotImplementedException();
+            if (scheduleTask == null)
+                throw new ArgumentNullException(nameof(scheduleTask));
+
+            var scheduleEnity = await _scheduleRepository.GetScheduleByIdAsync(scheduleTask.Schedule.ScheduleId);
+
+            if (scheduleEnity == null)
+                throw new InvalidOperationException();
+
+            var controlDeviceEntity = await _controlDeviceRepository.GetDeviceAsync(scheduleTask.ControlDevice.ControlDeviceId);
+
+            if (controlDeviceEntity == null)
+                throw new InvalidOperationException();
+
+            if (!_TaskActionsList.Select(ta => ta.TaskActionId).ToList().Contains(scheduleTask.TaskAction.TaskActionId))
+                throw new InvalidOperationException();
+
+            var scheduleTaskEntity = new ScheduleTaskEntity {
+                Schedule = scheduleEnity,
+                ControlDevice = controlDeviceEntity,
+                TaskActionId = scheduleTask.TaskAction.TaskActionId,
+                IsActive = scheduleTask.IsActive
+            };
+
+            try
+            {
+                await _scheduleRepository.InsertScheduleTaskAsync(scheduleTaskEntity);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return _mapper.Map<ScheduleTask>(scheduleTaskEntity);
         }
 
-        public Task<IEnumerable<Schedule>> GetSchedulesTasksAsync(int scheduleId)
+        public async Task<IEnumerable<ScheduleTask>> GetAllScheduleTasksAsync()
         {
-            throw new NotImplementedException();
+            return _mapper.Map<IEnumerable<ScheduleTask>>(await _scheduleRepository.GetAllScheduleTasksAsync());
         }
 
-        public Task<ScheduleTask> GetScheduleTaskAsync(int id)
+        public async Task<IEnumerable<ScheduleTask>> GetScheduleTasksAsync(int scheduleId)
         {
-            throw new NotImplementedException();
+            return _mapper.Map<IEnumerable<ScheduleTask>>(await _scheduleRepository.GetScheduleTasksAsync(scheduleId));
         }
 
-        public Task<ScheduleTask> UpdateScheduleTaskAsync(ScheduleTask scheduleTask)
+        public async Task<ScheduleTask> GetScheduleTaskAsync(int id)
         {
-            throw new NotImplementedException();
+            return _mapper.Map<ScheduleTask>(await _scheduleRepository.GetScheduleTaskByIdAsync(id));
         }
 
-        public Task DeleteScheduleTaskAsync(int id)
+        public async Task<ScheduleTask> UpdateScheduleTaskAsync(ScheduleTask scheduleTask)
         {
-            throw new NotImplementedException();
+
+            if (scheduleTask == null)
+                throw new ArgumentNullException(nameof(scheduleTask));
+
+            // get the existing schedule task entity from the database
+            var scheduleTaskEntity = await _scheduleRepository.GetScheduleTaskByIdAsync(scheduleTask.ScheduleTaskId);
+
+            if (scheduleTaskEntity == null)
+                throw new Exception();
+
+            scheduleTaskEntity.TaskActionId = scheduleTask.TaskAction.TaskActionId;
+            scheduleTaskEntity.IsActive = scheduleTask.IsActive;
+
+            return _mapper.Map<ScheduleTask>(scheduleTaskEntity);
+        }
+
+        public async Task DeleteScheduleTaskAsync(int id)
+        {
+            await _scheduleRepository.DeleteScheduleTaskAsync(id);
         }
         #endregion
 
-        #region Validate TaskSchedule
+        #region Validate Schedule
         private bool ScheduleIsValid(Schedule schedule)
         {
             var isValid = true;
-
-            if (schedule.ScheduleTasks == null || !schedule.ScheduleTasks.Any())
-                isValid = false;
 
             switch (schedule.TriggerType)
             {
