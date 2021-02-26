@@ -127,7 +127,7 @@ namespace GardenControlRepositories
             catch (Exception ex)
             {
                 // TODO: What do to if update fails?
-                _logger.LogError($"Error Updating Measurement ({measurement.MeasurementId}): {ex.Message}");
+                _logger.LogError($"Error Updating Measurement: {measurement.MeasurementId}, {ex.Message}");
                 throw;
             }
 

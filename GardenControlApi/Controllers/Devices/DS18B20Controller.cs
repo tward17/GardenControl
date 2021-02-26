@@ -31,8 +31,12 @@ namespace GardenControlApi.Controllers.Devices
         /// Returns a reading value from the specified DS18B20 temperature probe
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>Returns the current temperature from the DS18B20 sensor</returns>
+        /// <response code="200">Returns temperature value</response>
+        /// <response code="404">Could not find DS18B20 probe from id</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DS18B20Dto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<DS18B20Dto> Get(int id)
         {
             var controlDeviceReading = await _dS18B20Service.GetTemperatureReading(id);
@@ -44,6 +48,21 @@ namespace GardenControlApi.Controllers.Devices
 
 
             return response;
+        }
+
+        /// <summary>
+        /// Returns the serial numbers of all the attached probes to the specified GPIO Pin.
+        /// Useful for getting serial numbers to register each probe.
+        /// </summary>
+        /// <returns>List of serial numbers</returns>
+        /// <response code="200">Returns a list of the 1-wire protocol serial numbers attached to the GPIO pin</response>
+        [HttpGet("SerialNumbers/{gpioPin}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
+        public async Task<List<string>> GetSerialNumbers(int gpioPin)
+        {
+            var serialNumbers = await _dS18B20Service.GetSerialNumbers(gpioPin);
+
+            return serialNumbers;
         }
     }
 }

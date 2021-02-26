@@ -24,6 +24,11 @@ namespace GardenControlApi.Controllers
             _measurementService = measurementService;
         }
 
+        /// <summary>
+        /// Returns all Measurements
+        /// </summary>
+        /// <returns>Collection of Measurements</returns>
+        /// <response code="200">Returns all measurements</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MeasurementDto>))]
         public async Task<List<MeasurementDto>> Get()
@@ -31,6 +36,12 @@ namespace GardenControlApi.Controllers
             return _mapper.Map<List<MeasurementDto>>(await _measurementService.GetAllMeasurementsAsync());
         }
 
+        /// <summary>
+        /// Returns specified Measurement
+        /// </summary>
+        /// <returns>Returns single Measurement</returns>
+        /// <response code="200">Returns all measurements</response>
+        /// <response code="404">Could not find Measurement from id</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,15 +53,27 @@ namespace GardenControlApi.Controllers
             return _mapper.Map<MeasurementDto>(await _measurementService.GetMeasurementByIdAsync(id));
         }
 
+        /// <summary>
+        /// Creates a Measurement
+        /// </summary>
+        /// <returns>Returns created Measurement</returns>
+        /// <response code="201">Measurement created successfully</response>
+        /// <response code="400">Could not find Measurement from id</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MeasurementDto>> Insert(MeasurementDto measurementDto)
         {
             var newMeasurement = await _measurementService.InsertMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
             return CreatedAtAction(nameof(Get), new { id = newMeasurement.MeasurementId }, newMeasurement);
         }
 
+        /// <summary>
+        /// Updates specified Measurement
+        /// </summary>
+        /// <returns>Updates specified Measurement</returns>
+        /// <response code="204">Measurement updated successfully</response>
+        /// <response code="400">Measurement Id in url and object do not match</response>
+        /// <response code="404">Could not find Measurement from id</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -68,9 +91,14 @@ namespace GardenControlApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        /// <summary>
+        /// Deletes specified Measurement
+        /// </summary>
+        /// <returns>Deletes single Measurement</returns>
+        /// <response code="204">Measurement successfully deleted</response>
+        /// <response code="404">Could not find Measurement from id</response>
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(long id)
         {
