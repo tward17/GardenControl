@@ -1,0 +1,37 @@
+﻿@page "/scheduler/edit/{ScheduleId:int}"
+@using Models
+
+<h3>Edit Schedule</h3>
+
+@if (schedule == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>@schedule.Name</p>
+    <p>@schedule.IsActive</p>
+}
+
+
+@code {
+    [Parameter]
+    public int scheduleId { get; set; }
+
+    private ScheduleViewModel schedule { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var scheduleData = await client.Schedule2Async(scheduleId);
+
+        if (scheduleData != null)
+        {
+            schedule = new ScheduleViewModel
+            {
+                Name = scheduleData.Name,
+                IsActive = scheduleData.IsActive
+            };
+        }
+    }
+}

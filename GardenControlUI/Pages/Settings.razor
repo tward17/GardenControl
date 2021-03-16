@@ -1,56 +1,66 @@
 ﻿@page "/settings"
 
-<h1>Settings</h1>
-
-@if (appSettings == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Key</th>
-                <th>Value</th>
-                <td></td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var setting in appSettings.OrderBy(s => s.Key))
-            {
-                if (updatingSetting != null && setting.Key == updatingSetting.Key)
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="card-title">Settings</h1>
+                <p class="card-text">This section allows you to update certain system settings. Changing these values can cause the application to break, so make sure you know what you are doing!</p>
+                @if (appSettings == null)
                 {
-                    <tr>
-                        <td>@setting.Key</td>
-                        <td><input type="text" @bind="updatingSetting.Value" /></td>
-                        <td class="text-right"><button @onclick="SaveSetting" class="btn btn-primary">Save</button> <button @onclick="CancelUpdateSetting" class="btn btn-secondary">Cancel</button></td>
-                    </tr>
-                }
+                    <p><em>Loading...</em></p> }
                 else
                 {
-                    <tr>
-                        <td>@setting.Key</td>
-                        <td>@setting.Value</td>
-                        <td class="text-right"><a @onclick="@(() => UpdateSetting(setting.AppSettingId))"><span class="oi oi-pencil" aria-hidden="true"></span></a> <a @onclick="@(() => DeleteSetting(setting.AppSettingId))"><span class="oi oi-delete" aria-hidden="true"></span></a></td>
-                    </tr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Value</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var setting in appSettings.OrderBy(s => s.Key))
+                            {
+                                if (updatingSetting != null && setting.Key == updatingSetting.Key)
+                                {
+                                    <tr>
+                                        <td>@setting.Key</td>
+                                        <td><input type="text" @bind="updatingSetting.Value" /></td>
+                                        <td class="text-right"><button @onclick="SaveSetting" class="btn btn-outline-primary">Save</button> <button @onclick="CancelUpdateSetting" class="btn btn-outline-secondary">Cancel</button></td>
+                                    </tr> 
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>@setting.Key</td>
+                                        <td>@setting.Value</td>
+                                        <td class="text-right"><button class="btn btn-outline-secondary" @onclick="@(() => UpdateSetting(setting.AppSettingId))"><span class="oi oi-pencil" aria-hidden="true"></span></button> <button class="btn btn-outline-danger" @onclick="@(() => DeleteSetting(setting.AppSettingId))"><span class="oi oi-delete" aria-hidden="true"></span></button></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Insert New Setting</span>
+                        </div>
+                        <input class="form-control" placeholder="Key" @bind="newSettingKey" />
+                        <input class="form-control" placeholder="Value" @bind="newSettingValue" />
+                        <div class="input-group-append">
+                            <button @onclick="AddSetting" class="btn btn-outline-primary">Add</button>
+                        </div>
+                    </div>
                 }
-            }
-        </tbody>
-    </table>
-
-    <div>
-        Insert New Setting:
-        <input placeholder="Key" @bind="newSettingKey" />
-        <input placeholder="Value" @bind="newSettingValue" />
-        <button @onclick="AddSetting" class="btn btn-primary">Add</button>
+            </div>
+        </div>
     </div>
-    
-}
+</div>
 
 
-@code {
-    private ICollection<AppSettingDto> appSettings;
+
+@code { private ICollection<AppSettingDto> appSettings;
     private string newSettingKey;
     private string newSettingValue;
     private AppSettingDto updatingSetting = null;
@@ -135,5 +145,4 @@ else
             this.StateHasChanged();
         }
 
-    }
-}
+    } }

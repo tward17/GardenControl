@@ -1,4 +1,4 @@
-﻿@page "/controldevice/edit/{ControlDeviceId:int}"
+﻿@page "/device/edit/{ControlDeviceId:int}"
 @using GardenControlCore.Models;
 @inject NavigationManager NavManager
 
@@ -109,12 +109,13 @@ else
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         client.ControlDevice3Async(controlDeviceId, new GardenControlUI.ControlDeviceDto
         {
+            ControlDeviceId = controlDevice.ControlDeviceId,
             Alias = controlDevice.Alias,
             Description = controlDevice.Description,
             GpioPinNumber = controlDevice.GPIOPinNumber,
             SerialNumber = controlDevice.SerialNumber,
             IsActive = controlDevice.IsActive,
-            DefaultState = (int)controlDevice.DefaultState
+            DefaultState = (DefaultState)controlDevice.DefaultState
         });
 
         NavManager.NavigateTo("/devices/");

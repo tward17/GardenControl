@@ -39,10 +39,10 @@ namespace GardenControlApi.Controllers
         }
 
         /// <summary>
-        /// Returns All Schedules
+        /// Returns specified Schedule
         /// </summary>
-        /// <returns>Returns all Schedules</returns>
-        /// <response code="200">Returns all Schedules</response>
+        /// <returns>Returns specified Schedule</returns>
+        /// <response code="200">Returns specified Schedule</response>
         /// <response code="404">Could not find Schedule with given id</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ScheduleDto))]

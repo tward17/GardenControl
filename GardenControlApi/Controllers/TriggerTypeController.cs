@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GardenControlApi.Models;
 using GardenControlCore.Enums;
+using GardenControlCore.Helpers;
 using GardenControlCore.Scheduler;
 using GardenControlServices.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,7 @@ namespace GardenControlApi.Controllers
 
             foreach(var triggerId in Enum.GetValues(typeof(TriggerType)))
             {
-                triggerTypes.Add(new TriggerTypeDto { Id = (int)triggerId, Name = Enum.GetName(typeof(TriggerType), triggerId)});
+                triggerTypes.Add(new TriggerTypeDto { Id = (int)triggerId, Name = EnumHelper.GetTriggerTypeFriendlyName((TriggerType)triggerId) });
             }
 
             return triggerTypes;
@@ -48,7 +49,7 @@ namespace GardenControlApi.Controllers
         {
             if (Enum.IsDefined(typeof(TriggerType), id))
             {
-                var triggerType = new TriggerTypeDto { Id = id, Name = Enum.GetName(typeof(TriggerType), id) };
+                var triggerType = new TriggerTypeDto { Id = id, Name = EnumHelper.GetTriggerTypeFriendlyName((TriggerType)id) };
                 return triggerType;
             }
             else

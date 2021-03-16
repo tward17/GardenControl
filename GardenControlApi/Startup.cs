@@ -73,10 +73,10 @@ namespace GardenControlApi
                     Title = "GardenControlApi", 
                     Version = "v1",
                     Description = "An API that allows the monitor and control of devices plugged in to the GPIO Pins on a Raspberry Pi"});
-
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                
             });
             services.AddTransient<IAppSettingsRepository, AppSettingsRepository>();
             services.AddTransient<IAppSettingsService, AppSettingsService>();
@@ -94,13 +94,6 @@ namespace GardenControlApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));
-            //}
-
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));

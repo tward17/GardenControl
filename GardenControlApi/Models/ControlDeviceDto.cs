@@ -1,7 +1,9 @@
 ﻿using GardenControlCore.Enums;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GardenControlApi.Models
@@ -16,6 +18,6 @@ namespace GardenControlApi.Models
         public bool IsActive { get; set; }
         public int? GPIOPinNumber { get; set; }
         public string SerialNumber { get; set; }
-        public int? DefaultState { get; set; }
+        public DefaultState? DefaultState { get; set; }
     }
 }

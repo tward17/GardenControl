@@ -12,7 +12,6 @@ namespace GardenControlApi.MapProfiles
     {
         public ControlDeviceDtoProfile()
         {
-            CreateMap<ControlDeviceInsertDto, ControlDevice>();
             CreateMap<ControlDeviceDto, ControlDevice>().ReverseMap();
         }
     }

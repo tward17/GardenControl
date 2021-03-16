@@ -1,0 +1,84 @@
+﻿@page "/devices"
+@using Models
+@using GardenControlCore.Helpers
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="card-title">Devices</h1>
+                        <p class="card-text">Devices are the sensors and switches that are connected to your Raspberry Pi. At the moment the supported devices are: Relays, DS18B20 Thermometers, and Float Sensors.</p>
+                        <div class="btn-group">
+                            <a href="device/create" class="btn btn-outline-primary"><span class="oi oi-plus" aria-hidden="true"></span> Add New Device</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (devices == null)
+{
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <p><em>Loading...</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+}
+else
+{
+    @foreach(var device in devices)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title">@device.Alias</h3>
+                        <dl>
+                            <dt>Type</dt>
+                            <dd>@device.DeviceType</dd>
+                            <dt>GPIO Number</dt>
+                            <dd>@device.GPIOPinNumber</dd>
+                            <dt>Is Active</dt>
+                            <dd>@device.IsActive</dd>
+                            <dt>Serial Number</dt>
+                            <dd>@device.SerialNumber</dd>
+                            <dt>Default State</dt>
+                            <dd>@device.DefaultState</dd>
+                        </dl>
+                        <a href="/device/edit/@device.ControlDeviceId" class="btn btn-outline-secondary"><span class="oi oi-pencil" aria-hidden="true"></span> Edit</a> <a href="#" class="btn btn-outline-danger"><span class="oi oi-delete" aria-hidden="true"></span> Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+
+
+@code { private ICollection<ControlDeviceViewModel> devices;
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var deviceList = await client.ControlDeviceAllAsync();
+
+        devices = deviceList.Select(x => new ControlDeviceViewModel
+        {
+            ControlDeviceId = x.ControlDeviceId,
+            Alias = x.Alias,
+            DeviceType = EnumHelper.GetControlDeviceTypeFriendlyName((GardenControlCore.Enums.DeviceType)x.DeviceTypeId),
+            GPIOPinNumber = x.GpioPinNumber,
+            IsActive = x.IsActive,
+            SerialNumber = x.SerialNumber,
+            DefaultState = Enum.GetName(typeof(GardenControlCore.Enums.DefaultState), x.DefaultState)
+        }).ToList();
+    } }
