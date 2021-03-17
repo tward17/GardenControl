@@ -92,7 +92,7 @@ Welcome to your new app.
     protected override async Task OnInitializedAsync()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        var controlDevices = await client.ControlDeviceAllAsync();
+        var controlDevices = await client.ControlDeviceGetAllAsync();
 
 
         relays = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.Relay)

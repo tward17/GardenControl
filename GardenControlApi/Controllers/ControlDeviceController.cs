@@ -31,7 +31,7 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Returns all Control Devices</returns>
         /// <response code="200">Returns all control devices</response>
-        [HttpGet]
+        [HttpGet(Name = "ControlDeviceGetAll")]
         public async Task<IEnumerable<ControlDeviceDto>> Get()
         {
             return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevicesAsync());
@@ -43,7 +43,7 @@ namespace GardenControlApi.Controllers
         /// <returns>Returns the specified Control Device</returns>
         /// <response code="200">Returns the specified control device</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "ControlDeviceGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ControlDeviceDto>> Get([FromRoute] int id)
@@ -59,7 +59,7 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Returns the created Control Device</returns>
         /// <response code="201">Control Device created successfully</response>
-        [HttpPost]
+        [HttpPost(Name = "ControlDeviceInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
         {
@@ -75,7 +75,7 @@ namespace GardenControlApi.Controllers
         /// <response code="204">Control Device successfully updated</response>
         /// <response code="400">Control Device Id in url and object do not match</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "ControlDeviceUpdate")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -98,7 +98,7 @@ namespace GardenControlApi.Controllers
         /// <returns></returns>
         /// <response code="204">Control Device successfully deleted</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "ControlDeviceDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([FromRoute] int id)

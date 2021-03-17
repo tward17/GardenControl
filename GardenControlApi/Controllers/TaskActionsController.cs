@@ -30,7 +30,7 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>List of Task Actions</returns>
         /// <response code="200">Returns all the possible Task Actions</response>
-        [HttpGet]
+        [HttpGet(Name = "TaskActionGetAll")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TaskActionDto>))]
         public async Task<IEnumerable<TaskActionDto>> Get()
         {
@@ -43,7 +43,7 @@ namespace GardenControlApi.Controllers
         /// <returns>The speicied Task Actions</returns>
         /// <response code="200">Returns the specified Task Action</response>
         /// <response code="404">Could not find Task Action with id</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "TaskActionGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskActionDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TaskActionDto>> Get([FromRoute] TaskActionId id)

@@ -22,7 +22,7 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>List of Trigger Types</returns>
         /// <response code="200">Returns all the possible Trigger Types</response>
-        [HttpGet]
+        [HttpGet(Name = "TriggerTypeGetAll")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TriggerTypeDto>))]
         public List<TriggerTypeDto> Get()
         {
@@ -42,7 +42,7 @@ namespace GardenControlApi.Controllers
         /// <returns>The speicied Trigger Type</returns>
         /// <response code="200">Returns the specified Trigger Type</response>
         /// <response code="404">Could not find Trigger Type with id</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "TriggerTypeGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TriggerTypeDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TriggerTypeDto> Get([FromRoute] int id)

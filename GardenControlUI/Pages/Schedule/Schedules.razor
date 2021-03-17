@@ -83,9 +83,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        triggerTypes = await client.TriggerTypeAllAsync();
+        triggerTypes = await client.TriggerTypeGetAllAsync();
 
-        var scheduleData = await client.ScheduleAllAsync();
+        var scheduleData = await client.ScheduleGetAllAsync();
 
         schedules = new List<ScheduleViewModel>();
 

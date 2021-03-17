@@ -116,7 +116,7 @@
             throw new ArgumentNullException(nameof(controlDevice));
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        client.ControlDeviceAsync(new GardenControlUI.ControlDeviceDto
+        client.ControlDeviceInsertAsync(new GardenControlUI.ControlDeviceDto
         {
             Alias = controlDevice.Alias,
             DeviceTypeId = (DeviceType)controlDevice.DeviceTypeId,
@@ -124,7 +124,7 @@
             GpioPinNumber = controlDevice.GPIOPinNumber,
             SerialNumber = controlDevice.SerialNumber,
             IsActive = controlDevice.IsActive,
-            DefaultState = (DefaultState)controlDevice.DefaultState
+            DefaultState = (controlDevice.DefaultState.HasValue ? (DefaultState)controlDevice.DefaultState : null)
         });
 
         NavManager.NavigateTo("/devices/");

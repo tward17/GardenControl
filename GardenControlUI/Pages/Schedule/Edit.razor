@@ -23,7 +23,7 @@ else
     protected async override Task OnParametersSetAsync()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        var scheduleData = await client.Schedule2Async(scheduleId);
+        var scheduleData = await client.ScheduleGetByIdAsync(scheduleId);
 
         if (scheduleData != null)
         {

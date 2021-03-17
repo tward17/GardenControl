@@ -9,6 +9,7 @@ namespace GardenControlUI.Models
     {
         public int ControlDeviceId { get; set; }
         public string Alias { get; set; }
+        public string Description { get; set; }
         public string DeviceType { get; set; }
         public int? GPIOPinNumber { get; set; }
         public bool IsActive { get; set; }
