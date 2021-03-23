@@ -34,7 +34,7 @@
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         var response = await client.DS18B20Async(ControlDeviceId);
-        Temperature = response.ReadingValueCelcius.ToString("0.#");
+        Temperature = response.TemperatureC.ToString("0.#");
     }
 
     public void Dispose()

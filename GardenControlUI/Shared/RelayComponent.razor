@@ -15,7 +15,7 @@
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         await client.Relay2Async(ControlDeviceId, new RelaySetStateDto { DeviceId = ControlDeviceId,
-            State = (IsRelayOn ? RelayState._0 : RelayState._1) });
+            State = (IsRelayOn ? RelayState.Off : RelayState.On) });
     }
 
     Timer timer;
@@ -41,7 +41,7 @@
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         var relayState = client.RelayAsync(ControlDeviceId).Result;
-        IsRelayOn =(GardenControlCore.Enums.RelayState)Enum.Parse(typeof(GardenControlCore.Enums.RelayState), relayState.RelayState) == GardenControlCore.Enums.RelayState.On;
+        IsRelayOn = relayState == RelayState.On;
     }
 
     public void Dispose()

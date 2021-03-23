@@ -61,10 +61,10 @@
 
 
 
-@code { private ICollection<AppSettingDto> appSettings;
+@code { private ICollection<AppSetting> appSettings;
     private string newSettingKey;
     private string newSettingValue;
-    private AppSettingDto updatingSetting = null;
+    private AppSetting updatingSetting = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,14 +79,14 @@
             return;
         }
 
-        var newAppSettingDto = new AppSettingDto { Key = newSettingKey, Value = newSettingValue };
+        var newAppSetting = new AppSetting { Key = newSettingKey, Value = newSettingValue };
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
 
         try
         {
-            await client.AppSettingInsertAsync(newAppSettingDto);
-            appSettings.Add(newAppSettingDto);
+            await client.AppSettingInsertAsync(newAppSetting);
+            appSettings.Add(newAppSetting);
             newSettingKey = "";
             newSettingValue = "";
         }
@@ -100,7 +100,7 @@
         }
     }
 
-    private async void UpdateSetting(AppSettingDto appSetting)
+    private async void UpdateSetting(AppSetting appSetting)
     {
         updatingSetting = appSetting;
         this.StateHasChanged();
@@ -128,7 +128,7 @@
         this.StateHasChanged();
     }
 
-    private async void DeleteSetting(AppSettingDto appSetting)
+    private async void DeleteSetting(AppSetting appSetting)
     {
         if (!await JSRuntime.Confirm($"Are you sure you want to delete the Setting \"{appSetting.Key}\"?"))
             return;

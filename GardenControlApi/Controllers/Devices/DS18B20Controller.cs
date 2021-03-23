@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GardenControlApi.Models;
+using GardenControlCore.Models;
 using GardenControlServices;
 using GardenControlServices.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -35,16 +36,16 @@ namespace GardenControlApi.Controllers.Devices
         /// <response code="200">Returns temperature value</response>
         /// <response code="404">Could not find DS18B20 probe from id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DS18B20Dto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TemperatureReading))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<DS18B20Dto> Get([FromRoute] int id)
+        public async Task<TemperatureReading> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _dS18B20Service.GetTemperatureReading(id);
 
             if (controlDeviceReading == null)
                 throw new Exception("Unable to take measurement");
 
-            var response = _mapper.Map<DS18B20Dto>(controlDeviceReading);
+            var response = controlDeviceReading;
 
 
             return response;

@@ -32,9 +32,9 @@ namespace GardenControlApi.Controllers
         /// <returns>Returns all Control Devices</returns>
         /// <response code="200">Returns all control devices</response>
         [HttpGet(Name = "ControlDeviceGetAll")]
-        public async Task<IEnumerable<ControlDeviceDto>> Get()
+        public async Task<IEnumerable<ControlDevice>> Get()
         {
-            return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevicesAsync());
+            return await _deviceControlService.GetAllDevicesAsync();
         }
 
         /// <summary>
@@ -44,14 +44,14 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns the specified control device</response>
         /// <response code="404">Could not find a control device with the specified id</response>
         [HttpGet("{id}", Name = "ControlDeviceGetById")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDevice))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ControlDeviceDto>> Get([FromRoute] int id)
+        public async Task<ActionResult<ControlDevice>> Get([FromRoute] int id)
         {
             if (!(await ControlDeviceExists(id)))
                 return NotFound();
 
-            return _mapper.Map<ControlDeviceDto>(await _deviceControlService.GetDeviceAsync(id));
+            return await _deviceControlService.GetDeviceAsync(id);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace GardenControlApi.Controllers
         /// <response code="201">Control Device created successfully</response>
         [HttpPost(Name = "ControlDeviceInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
+        public async Task<IActionResult> Insert([FromBody] ControlDevice value)
         {
-            var newControlDevice = await _deviceControlService.InsertDeviceAsync(_mapper.Map<ControlDevice>(value));
+            var newControlDevice = await _deviceControlService.InsertDeviceAsync(value);
 
             return CreatedAtAction(nameof(Get), new { id = newControlDevice.ControlDeviceId }, newControlDevice);
         }
@@ -79,7 +79,7 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ControlDeviceDto value)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ControlDevice value)
         {
             if (id != value.ControlDeviceId)
                 return BadRequest();
@@ -87,7 +87,7 @@ namespace GardenControlApi.Controllers
             if (!(await ControlDeviceExists(id)))
                 return NotFound();
 
-            await _deviceControlService.UpdateDeviceAsync(_mapper.Map<ControlDevice>(value));
+            await _deviceControlService.UpdateDeviceAsync(value);
 
             return NoContent();
         }

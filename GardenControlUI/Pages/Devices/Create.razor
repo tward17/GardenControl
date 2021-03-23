@@ -1,5 +1,4 @@
 ﻿@page "/device/create"
-@using GardenControlCore.Models;
 @inject NavigationManager NavManager
 
 <div class="row">
@@ -25,8 +24,7 @@
                                     <div class="form-group col-sm-12 col-md-4">
                                         <label for="device-type-select">Device Type</label>
                                         <select id="device-type-select" class="form-control" @bind="controlDevice.DeviceTypeId" aria-describedby="device-type-helptext">
-                                            <option>Select</option>
-                                            @foreach (var deviceType in Enum.GetValues(typeof(GardenControlCore.Enums.DeviceType)))
+                                            @foreach (var deviceType in Enum.GetValues(typeof(DeviceType)))
                                             {
                                                 <option value="@deviceType">@deviceType.ToString()</option>
                                             }
@@ -35,13 +33,13 @@
                                             What type of device are you creating
                                         </small>
                                     </div>
-                                    @if (controlDevice.DeviceTypeId == GardenControlCore.Enums.DeviceType.Relay)
+                                    @if (controlDevice.DeviceTypeId == DeviceType.Relay)
                                     {
                                         <div class="form-group col-sm-12 col-md-4">
                                             <label for="default-state-select">Default State</label>
                                             <select id="default-state-select" class="form-control" @bind="controlDevice.DefaultState" aria-describedby="default-state-helptext">
                                                 <option>Select</option>
-                                                @foreach (var defaultState in Enum.GetValues(typeof(GardenControlCore.Enums.DefaultState)))
+                                                @foreach (var defaultState in Enum.GetValues(typeof(DefaultState)))
                                                 {
                                                     <option value="@defaultState">@defaultState.ToString()</option>
                                                 }
@@ -60,7 +58,7 @@
                                 <div class="form-row">
                                     <div class="form-group col-sm-12 col-md-4">
                                         <label for="gpio-pin-select">GPIO Pin</label>
-                                        <select id="gpio-pin-select" class="form-control" @bind="controlDevice.GPIOPinNumber" aria-describedby="gpio-helptext">
+                                        <select id="gpio-pin-select" class="form-control" @bind="controlDevice.GpioPinNumber" aria-describedby="gpio-helptext">
                                             <option>Select</option>
                                             @foreach (var pin in GardenControlCore.Helpers.RaspberryPi.GpioPins)
                                             {
@@ -103,12 +101,8 @@
 
 
 @code {
-    GardenControlCore.Models.ControlDevice controlDevice = new GardenControlCore.Models.ControlDevice();
+    ControlDevice controlDevice = new ControlDevice { DeviceTypeId = DeviceType.Relay };
 
-    protected async override Task OnParametersSetAsync()
-    {
-
-    }
 
     private void SaveControlDevice()
     {
@@ -116,16 +110,7 @@
             throw new ArgumentNullException(nameof(controlDevice));
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        client.ControlDeviceInsertAsync(new GardenControlUI.ControlDeviceDto
-        {
-            Alias = controlDevice.Alias,
-            DeviceTypeId = (DeviceType)controlDevice.DeviceTypeId,
-            Description = controlDevice.Description,
-            GpioPinNumber = controlDevice.GPIOPinNumber,
-            SerialNumber = controlDevice.SerialNumber,
-            IsActive = controlDevice.IsActive,
-            DefaultState = (controlDevice.DefaultState.HasValue ? (DefaultState)controlDevice.DefaultState : null)
-        });
+        client.ControlDeviceInsertAsync(controlDevice);
 
         NavManager.NavigateTo("/devices/");
     }

@@ -1,5 +1,4 @@
 ﻿@page "/device/edit/{ControlDeviceId:int}"
-@using GardenControlCore.Models;
 @inject NavigationManager NavManager
 
 <div class="row">
@@ -25,22 +24,22 @@
                                         <label for="device-type-select">Device Type</label>
                                         <select id="device-type-select" class="form-control" @bind="controlDevice.DeviceTypeId" aria-describedby="device-type-helptext" disabled>
                                             <option>Select</option>
-                                            @foreach (var deviceType in Enum.GetValues(typeof(GardenControlCore.Enums.DeviceType)))
+                                            @foreach (var deviceType in Enum.GetValues(typeof(DeviceType)))
                                             {
-                                                <option value="@deviceType">@deviceType.ToString()</option>
+                                                <option value="@deviceType">@deviceType</option>
                                             }
                                         </select>
                                         <small id="device-type-helptext" class="text-muted">
                                             What type of device are you creating
                                         </small>
                                     </div>
-                                    @if (controlDevice.DeviceTypeId == GardenControlCore.Enums.DeviceType.Relay)
+                                    @if (controlDevice.DeviceTypeId == DeviceType.Relay)
                                     {
                                         <div class="form-group col-sm-12 col-md-4">
                                             <label for="default-state-select">Default State</label>
                                             <select id="default-state-select" class="form-control" @bind="controlDevice.DefaultState" aria-describedby="default-state-helptext">
                                                 <option>Select</option>
-                                                @foreach (var defaultState in Enum.GetValues(typeof(GardenControlCore.Enums.DefaultState)))
+                                                @foreach (var defaultState in Enum.GetValues(typeof(DefaultState)))
                                                 {
                                                     <option value="@defaultState">@defaultState.ToString()</option>
                                                 }
@@ -58,7 +57,7 @@
                                 <div class="form-row">
                                     <div class="form-group col-sm-12 col-md-4">
                                         <label for="gpio-pin-select">GPIO Pin</label>
-                                        <select id="gpio-pin-select" class="form-control" @bind="controlDevice.GPIOPinNumber" aria-describedby="gpio-helptext">
+                                        <select id="gpio-pin-select" class="form-control" @bind="controlDevice.GpioPinNumber" aria-describedby="gpio-helptext">
                                             <option>Select</option>
                                             @foreach (var pin in GardenControlCore.Helpers.RaspberryPi.GpioPins)
                                             {
@@ -100,28 +99,15 @@
 @code {
     [Parameter]
     public int controlDeviceId { get; set; }
-    GardenControlCore.Models.ControlDevice controlDevice = new GardenControlCore.Models.ControlDevice();
+    ControlDevice controlDevice = new ControlDevice();
 
     protected async override Task OnParametersSetAsync()
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        var controlDeviceDto = await client.ControlDeviceGetByIdAsync(controlDeviceId);
+        controlDevice = await client.ControlDeviceGetByIdAsync(controlDeviceId);
 
         if (controlDevice == null)
             throw new Exception();
-
-        controlDevice = new GardenControlCore.Models.ControlDevice
-        {
-            ControlDeviceId = controlDeviceDto.ControlDeviceId,
-            DeviceTypeId = (GardenControlCore.Enums.DeviceType)controlDeviceDto.DeviceTypeId,
-            Alias = controlDeviceDto.Alias,
-            Description = controlDeviceDto.Description,
-            GPIOPinNumber = controlDeviceDto.GpioPinNumber,
-            SerialNumber = controlDeviceDto.SerialNumber,
-            IsActive = controlDeviceDto.IsActive,
-            DefaultState = (controlDeviceDto.DefaultState.HasValue ? (GardenControlCore.Enums.DefaultState)controlDeviceDto.DefaultState : null)
-        };
-
     }
 
     private void SaveControlDevice()
@@ -130,16 +116,7 @@
             throw new ArgumentNullException(nameof(controlDevice));
 
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
-        client.ControlDeviceUpdateAsync(controlDeviceId, new GardenControlUI.ControlDeviceDto
-        {
-            ControlDeviceId = controlDevice.ControlDeviceId,
-            Alias = controlDevice.Alias,
-            Description = controlDevice.Description,
-            GpioPinNumber = controlDevice.GPIOPinNumber,
-            SerialNumber = controlDevice.SerialNumber,
-            IsActive = controlDevice.IsActive,
-            DefaultState = (controlDevice.DefaultState.HasValue ? (DefaultState)controlDevice.DefaultState : null)
-        });
+        client.ControlDeviceUpdateAsync(controlDeviceId, controlDevice);
 
         NavManager.NavigateTo("/devices/");
     }

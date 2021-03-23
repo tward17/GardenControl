@@ -37,9 +37,9 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns the all AppSettings</response>
         // GET: api/<AppSettingsController>
         [HttpGet(Name = "AppSettingGetAll")]
-        public async Task<IEnumerable<AppSettingDto>> Get()
+        public async Task<IEnumerable<AppSetting>> Get()
         {
-            return _mapper.Map<List<AppSettingDto>>(await _appSettingsService.GetAllSettingsAsync());
+            return await _appSettingsService.GetAllSettingsAsync();
         }
 
         /// <summary>
@@ -50,16 +50,14 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns the the specified AppSetting</response>
         /// <response code="404">If the AppSetting cannot be found</response>
         [HttpGet("{id}", Name = "AppSettingGetById")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSettingDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AppSettingDto>> Get([FromRoute]int id)
+        public async Task<ActionResult<AppSetting>> Get([FromRoute]int id)
         {
             if (!(await AppSettingExists(id)))
                 return NotFound();
 
-            var appSetting = _mapper.Map<AppSettingDto>(await _appSettingsService.GetAppSettingByIdAsync(id));
-
-            return appSetting;
+            return await _appSettingsService.GetAppSettingByIdAsync(id);
         }
 
         /// <summary>
@@ -72,9 +70,9 @@ namespace GardenControlApi.Controllers
         /// <remarks>Any value set for CanBeUpdated property will be ignored and always set to true</remarks>
         // POST api/<AppSettingsController>
         [HttpPost(Name = "AppSettingInsert")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AppSettingDto))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AppSettingDto>> Insert([FromBody] AppSettingDto value)
+        public async Task<ActionResult<AppSetting>> Insert([FromBody] AppSetting value)
         {
             if (string.IsNullOrWhiteSpace(value.Key))
                 return BadRequest();
@@ -91,7 +89,7 @@ namespace GardenControlApi.Controllers
         /// Updates setting with specified value
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="appSettingDto"></param>
+        /// <param name="appSetting"></param>
         /// <returns></returns>
         /// <response code="204">Returns when the AppSetting is updated sucessfully</response>
         /// <response code="400">If the id parameter and id in the object do not match</response>
@@ -101,9 +99,9 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] AppSettingDto appSettingDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] AppSetting appSetting)
         {
-            if (id != appSettingDto.AppSettingId)
+            if (id != appSetting.AppSettingId)
                 return BadRequest();
 
             if (!(await AppSettingExists(id)))
@@ -111,7 +109,7 @@ namespace GardenControlApi.Controllers
 
             try
             {
-                await _appSettingsService.UpdateAppSettingAsync(_mapper.Map<AppSetting>(appSettingDto));
+                await _appSettingsService.UpdateAppSettingAsync(appSetting);
             }
             catch (Exception)
             {

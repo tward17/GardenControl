@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using GardenControlApi.Models;
-using GardenControlCore.Models;
+using GardenControlCore.Scheduler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace GardenControlApi.MapProfiles
 {
-    public class ControlDeviceDtoProfile : Profile
+    public class TaskActionDtoProfile : Profile
     {
-        public ControlDeviceDtoProfile()
+        public TaskActionDtoProfile()
         {
-            CreateMap<ControlDevice, ControlDeviceDto>()
-                .ReverseMap();
+            CreateMap<TaskAction, TaskActionDto>();
         }
     }
 }

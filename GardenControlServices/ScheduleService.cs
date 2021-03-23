@@ -90,7 +90,6 @@ namespace GardenControlServices
         public async Task<IEnumerable<Schedule>> GetAllSchedulesAsync()
         {
             var scheduleEntities = await _scheduleRepository.GetAllSchedulesAsync();
-
             return _mapper.Map<IEnumerable<Schedule>>(scheduleEntities);
         }
 
@@ -183,6 +182,35 @@ namespace GardenControlServices
             scheduleEntity.IntervalAmountTimeIntervalUnitId = schedule.IntervalAmountTimeIntervalUnit;
             scheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
 
+            // Update the schedule tasks
+
+            // remove any tasks from the entity that are not present in the schedule object as they've been deleted
+            foreach(var deletedTask in scheduleEntity.ScheduleTasks.Where(x => !schedule.ScheduleTasks.Select(y => y.ScheduleTaskId).ToList().Contains(x.ScheduleTaskId)).ToList())
+            {
+                scheduleEntity.ScheduleTasks.Remove(deletedTask);
+            }
+
+            // add any new tasks that are in the schedule but not in the scheduleEntity
+            foreach(var newTask in schedule.ScheduleTasks.Where(x => !scheduleEntity.ScheduleTasks.Select(y => y.ScheduleTaskId).ToList().Contains(x.ScheduleTaskId)).ToList())
+            {
+                scheduleEntity.ScheduleTasks.Add(new ScheduleTaskEntity
+                {
+                    ControlDevice = await _controlDeviceRepository.GetDeviceAsync(newTask.ControlDevice.ControlDeviceId),
+                    TaskActionId = newTask.TaskAction.TaskActionId,
+                    IsActive = newTask.IsActive,
+                    Schedule = scheduleEntity
+                });
+            }
+
+            // check each task which has an id match between object and entity, and update the values
+            foreach(var taskEntity in scheduleEntity.ScheduleTasks.Where(x => schedule.ScheduleTasks.Where(y => x.ScheduleTaskId == y.ScheduleTaskId).Any()))
+            {
+                var task = schedule.ScheduleTasks.Where(x => x.ScheduleTaskId == taskEntity.ScheduleTaskId).FirstOrDefault();
+                taskEntity.ControlDevice = await _controlDeviceRepository.GetDeviceAsync(task.ControlDevice.ControlDeviceId);
+                taskEntity.TaskActionId = task.TaskAction.TaskActionId;
+                taskEntity.IsActive = task.IsActive;
+            }
+            
             try
             {
                 await _scheduleRepository.UpdateScheduleAsync(scheduleEntity);
@@ -209,7 +237,7 @@ namespace GardenControlServices
             if (scheduleTask == null)
                 throw new ArgumentNullException(nameof(scheduleTask));
 
-            var scheduleEnity = await _scheduleRepository.GetScheduleByIdAsync(scheduleTask.Schedule.ScheduleId);
+            var scheduleEnity = await _scheduleRepository.GetScheduleByIdAsync(scheduleTask.ScheduleId);
 
             if (scheduleEnity == null)
                 throw new InvalidOperationException();

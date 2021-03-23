@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GardenControlApi.Models;
+using GardenControlCore.Enums;
 using GardenControlServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,21 +34,16 @@ namespace GardenControlApi.Controllers.Devices
         /// <response code="200">Returns float sensor state</response>
         /// <response code="404">Could not find float sensor from id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloatSensorDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloatSensorState))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<FloatSensorDto> Get([FromRoute] int id)
+        public async Task<FloatSensorState> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _floatSensorService.GetFloatSensorState(id);
 
             if (controlDeviceReading == null)
                 throw new Exception("Unable to take float sensor reading");
 
-            var response = new FloatSensorDto
-            {
-                FloatSensorState = Enum.GetName(controlDeviceReading)
-            };
-
-            return response;
+            return controlDeviceReading;
         }
     }
 }

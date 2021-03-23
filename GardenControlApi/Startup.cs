@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,9 +47,10 @@ namespace GardenControlApi
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
                 mc.AddProfile(new ScheduleProfile());
-                mc.AddProfile(new ScheduleProfileDto());
+                mc.AddProfile(new ScheduleDtoProfile());
                 mc.AddProfile(new ScheduleTaskProfile());
-                mc.AddProfile(new ScheduleTaskProfileDto());
+                mc.AddProfile(new ScheduleTaskDtoProfile());
+                mc.AddProfile(new TaskActionDtoProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
@@ -66,7 +68,9 @@ namespace GardenControlApi
             ));
 #endif
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+            services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { 

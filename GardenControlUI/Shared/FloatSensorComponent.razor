@@ -35,7 +35,7 @@
     {
         swaggerClient client = new(Configuration["APIBaseUrl"], Http);
         var response = await client.FloatSensorAsync(ControlDeviceId);
-        FloatSensorState = response.FloatSensorState;
+        FloatSensorState = Enum.GetName(typeof(GardenControlCore.Enums.FloatSensorState), response);
     }
 
     public void Dispose()

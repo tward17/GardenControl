@@ -30,10 +30,10 @@ namespace GardenControlApi.Controllers
         /// <returns>Collection of Measurements</returns>
         /// <response code="200">Returns all measurements</response>
         [HttpGet(Name = "MeasurementGetAll")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MeasurementDto>))]
-        public async Task<List<MeasurementDto>> Get()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Measurement>))]
+        public async Task<IEnumerable<Measurement>> Get()
         {
-            return _mapper.Map<List<MeasurementDto>>(await _measurementService.GetAllMeasurementsAsync());
+            return await _measurementService.GetAllMeasurementsAsync();
         }
 
         /// <summary>
@@ -43,14 +43,14 @@ namespace GardenControlApi.Controllers
         /// <response code="200">Returns all measurements</response>
         /// <response code="404">Could not find Measurement from id</response>
         [HttpGet("{id}", Name = "MeasurementGetById")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Measurement))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MeasurementDto>> Get([FromRoute] long id)
+        public async Task<ActionResult<Measurement>> Get([FromRoute] long id)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
 
-            return _mapper.Map<MeasurementDto>(await _measurementService.GetMeasurementByIdAsync(id));
+            return await _measurementService.GetMeasurementByIdAsync(id);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace GardenControlApi.Controllers
         /// <response code="400">Could not find Measurement from id</response>
         [HttpPost(Name = "MeasurementInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<MeasurementDto>> Insert([FromBody] MeasurementDto measurementDto)
+        public async Task<ActionResult<Measurement>> Insert([FromBody] Measurement measurement)
         {
-            var newMeasurement = await _measurementService.InsertMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
+            var newMeasurement = await _measurementService.InsertMeasurementAsync(measurement);
             return CreatedAtAction(nameof(Get), new { id = newMeasurement.MeasurementId }, newMeasurement);
         }
 
@@ -78,15 +78,15 @@ namespace GardenControlApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] MeasurementDto measurementDto)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] Measurement measurement)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
 
-            if (id != measurementDto.MeasurementId)
+            if (id != measurement.MeasurementId)
                 return BadRequest();
 
-            await _measurementService.UpdateMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
+            await _measurementService.UpdateMeasurementAsync(measurement);
 
             return NoContent();
         }
