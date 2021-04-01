@@ -1,0 +1,137 @@
+﻿@page "/scheduler"
+
+@using Models
+
+@inject IJSRuntime JSRuntime
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="card-title">Schedules</h1>
+                        <p class="card-text">
+                            Schedules allow you to perform certain actions automatically, such as toggling a relay's state, or taking a measurement from a sensor. Multiple actions, on different devices can be performed in a single schedule.
+                            The triggering event for a Schedule could be a certain time of day, an interval since the last run time, or at sunrise or sunset. You can also offset the trigger time, for example having a relay toggle
+                            15 minutes after sunrise.
+                        </p>
+                        <div class="btn-group">
+                            <a href="scheduler/create" class="btn btn-outline-primary"><span class="oi oi-plus" aria-hidden="true"></span> Add New Schedule</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (schedules == null)
+{
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <p><em>Loading...</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+else
+{
+    @foreach (var schedule in schedules)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <h3 class="card-title">@schedule.Name</h3>
+                            </div>
+                            <div class="col-12 col-md-6 text-md-right">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-success" title="Run Now"><span class="oi oi-media-play" aria-hidden="true"></span> Run Now</button><a href="/scheduler/edit/@schedule.ScheduleId" class="btn btn-outline-secondary" title="Edit"><span class="oi oi-pencil" aria-hidden="true"></span> Edit</a><button class="btn btn-outline-danger" @onclick="() => DeleteSchedule(schedule)" title="Delete"><span class="oi oi-delete" aria-hidden="true"></span> Delete</button>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6">
+                                <p>Trigger Type: @schedule.TriggerType</p>
+                                <p>Trigger</p>
+                                <p>Next Run Time: @schedule.NextRunDateTime</p>
+                                <p>Is Active: @schedule.IsActive</p>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <h4>Tasks</h4>
+                                @if (!schedule.ScheduleTasks.Any())
+                                {
+                                    <p>None</p>
+                                }
+                                else
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            @foreach(var scheduleTask in schedule.ScheduleTasks.Where(x => x.IsActive))
+                                            {
+                                            <tr>
+                                                <td>@scheduleTask.ControlDevice.Alias</td>
+                                                <td>@scheduleTask.ControlDevice.DeviceTypeId</td>
+                                                <td>@scheduleTask.TaskAction.ToString()</td>
+                                            </tr>
+                                            }
+                                        </table>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private ICollection<Schedule> schedules;
+    private ICollection<TriggerTypeDto> triggerTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        triggerTypes = await client.TriggerTypeGetAllAsync();
+
+        schedules = await client.ScheduleGetAllAsync();
+    }
+
+    private async Task DeleteSchedule(Schedule schedule)
+    {
+        if (!await JSRuntime.Confirm($"Are you sure you want to delete the Schedule \"{schedule.Name}\"?"))
+            return;
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+
+        try
+        {
+            client.ScheduleDeleteAsync(schedule.ScheduleId);
+            schedules.Remove(schedule);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            this.StateHasChanged();
+        }
+    }
+}

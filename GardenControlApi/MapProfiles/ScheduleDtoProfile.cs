@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace GardenControlApi.MapProfiles
 {
-    public class ScheduleProfileDto : Profile
+    public class ScheduleDtoProfile : Profile
     {
-        public ScheduleProfileDto()
+        public ScheduleDtoProfile()
         {
             CreateMap<ScheduleDto, Schedule>()
                 .ForMember(dest =>

@@ -1,0 +1,51 @@
+﻿<div class="custom-control custom-switch">
+    <input type="checkbox" class="custom-control-input" id="relay-@ControlDeviceId-switch" @bind="IsRelayOn" @onclick="UpdateRelayState"/>
+    <label class="custom-control-label" for="relay-@ControlDeviceId-switch">@Alias</label>
+</div>
+
+@code {
+    [Parameter]
+    public int ControlDeviceId { get; set; }
+    [Parameter]
+    public string Alias { get; set; }
+    [Parameter]
+    public bool IsRelayOn { get; set; }
+
+    private async void UpdateRelayState()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        await client.Relay2Async(ControlDeviceId, new RelaySetStateDto { DeviceId = ControlDeviceId,
+            State = (IsRelayOn ? RelayState.Off : RelayState.On) });
+    }
+
+    Timer timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await MonitorRelayState();
+    }
+
+    private async Task MonitorRelayState()
+    {
+        timer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                GetIsRelayOn();
+                StateHasChanged();
+            });
+        }, null, 0, 500);
+    }
+
+    private async Task GetIsRelayOn()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var relayState = client.RelayAsync(ControlDeviceId).Result;
+        IsRelayOn = relayState == RelayState.On;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

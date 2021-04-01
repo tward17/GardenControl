@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,9 +47,10 @@ namespace GardenControlApi
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
                 mc.AddProfile(new ScheduleProfile());
-                mc.AddProfile(new ScheduleProfileDto());
+                mc.AddProfile(new ScheduleDtoProfile());
                 mc.AddProfile(new ScheduleTaskProfile());
-                mc.AddProfile(new ScheduleTaskProfileDto());
+                mc.AddProfile(new ScheduleTaskDtoProfile());
+                mc.AddProfile(new TaskActionDtoProfile());
             });
 
             IMapper mapper = mapperConfig.CreateMapper();
@@ -66,17 +68,19 @@ namespace GardenControlApi
             ));
 #endif
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+            services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { 
                     Title = "GardenControlApi", 
                     Version = "v1",
                     Description = "An API that allows the monitor and control of devices plugged in to the GPIO Pins on a Raspberry Pi"});
-
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                c.UseAllOfToExtendReferenceSchemas();
             });
             services.AddTransient<IAppSettingsRepository, AppSettingsRepository>();
             services.AddTransient<IAppSettingsService, AppSettingsService>();
@@ -94,13 +98,6 @@ namespace GardenControlApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));
-            //}
-
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GardenControlApi v1"));

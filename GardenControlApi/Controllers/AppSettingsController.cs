@@ -36,7 +36,7 @@ namespace GardenControlApi.Controllers
         /// <returns>All of the AppSettings</returns>
         /// <response code="200">Returns the all AppSettings</response>
         // GET: api/<AppSettingsController>
-        [HttpGet]
+        [HttpGet(Name = "AppSettingGetAll")]
         public async Task<IEnumerable<AppSetting>> Get()
         {
             return await _appSettingsService.GetAllSettingsAsync();
@@ -49,17 +49,15 @@ namespace GardenControlApi.Controllers
         /// <returns>The AppSetting for the provided key</returns>
         /// <response code="200">Returns the the specified AppSetting</response>
         /// <response code="404">If the AppSetting cannot be found</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "AppSettingGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get(int id)
+        public async Task<ActionResult<AppSetting>> Get([FromRoute]int id)
         {
             if (!(await AppSettingExists(id)))
                 return NotFound();
 
-            var val = await _appSettingsService.GetAppSettingByIdAsync(id);
-
-            return Ok(val);
+            return await _appSettingsService.GetAppSettingByIdAsync(id);
         }
 
         /// <summary>
@@ -71,10 +69,10 @@ namespace GardenControlApi.Controllers
         /// <response code="400">If the key or value is null or empty</response>
         /// <remarks>Any value set for CanBeUpdated property will be ignored and always set to true</remarks>
         // POST api/<AppSettingsController>
-        [HttpPost]
+        [HttpPost(Name = "AppSettingInsert")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AppSetting))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AppSetting>> Insert([FromBody] AppSettingDto value)
+        public async Task<ActionResult<AppSetting>> Insert([FromBody] AppSetting value)
         {
             if (string.IsNullOrWhiteSpace(value.Key))
                 return BadRequest();
@@ -91,19 +89,19 @@ namespace GardenControlApi.Controllers
         /// Updates setting with specified value
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="appSettingDto"></param>
+        /// <param name="appSetting"></param>
         /// <returns></returns>
         /// <response code="204">Returns when the AppSetting is updated sucessfully</response>
         /// <response code="400">If the id parameter and id in the object do not match</response>
         /// <response code="404">If the AppSetting cannot be found</response>
         // PUT api/<AppSettingsController>/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "AppSettingUpdate")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, AppSettingDto appSettingDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] AppSetting appSetting)
         {
-            if (id != appSettingDto.AppSettingId)
+            if (id != appSetting.AppSettingId)
                 return BadRequest();
 
             if (!(await AppSettingExists(id)))
@@ -111,7 +109,7 @@ namespace GardenControlApi.Controllers
 
             try
             {
-                await _appSettingsService.UpdateAppSettingAsync(_mapper.Map<AppSetting>(appSettingDto));
+                await _appSettingsService.UpdateAppSettingAsync(appSetting);
             }
             catch (Exception)
             {
@@ -129,10 +127,10 @@ namespace GardenControlApi.Controllers
         /// <response code="204">Returns when the AppSetting is deleted sucessfully</response>
         /// <response code="404">If the AppSetting cannot be found</response>
         // DELETE api/<AppSettingsController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "AppSettingDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!(await AppSettingExists(id)))
                 return NotFound();

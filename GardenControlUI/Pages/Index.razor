@@ -1,0 +1,121 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Relays</h4>
+            </div>
+            <div class="card-body">
+                @if (relays == null)
+                {
+                    <span>Loading Relays...</span>
+                }
+                else
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var relay in relays)
+                        {
+                            <li>
+                                <RelayComponent ControlDeviceId="@relay.ControlDeviceId" Alias="@relay.Alias"></RelayComponent>
+                            </li>
+                        }
+                    </ul>
+
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Float Sensors</h4>
+            </div>
+            <div class="card-body">
+                @if (floatSensors == null)
+                {
+                    <span>Loading Float Sensors...</span>
+                }
+                else
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var floatSensor in floatSensors)
+                        {
+                            <li>
+                                <FloatSensorComponent ControlDeviceId="@floatSensor.ControlDeviceId" Alias="@floatSensor.Alias"></FloatSensorComponent>
+                            </li>
+                        }
+                    </ul>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>DS18B20 Thermometers</h4>
+            </div>
+            <div class="card-body">
+                @if (ds18b20Thermometers == null)
+                {
+                    <span>Loading DS18B20 Thermometers...</span>
+                }
+                else
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var ds18b20Thermometer in ds18b20Thermometers)
+                        {
+                            <li>
+                                <DS18B20Component ControlDeviceId="@ds18b20Thermometer.ControlDeviceId" Alias="@ds18b20Thermometer.Alias"></DS18B20Component>
+                            </li>
+                        }
+                    </ul>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    private ICollection<GardenControlCore.Models.ControlDevice> relays;
+    private ICollection<GardenControlCore.Models.ControlDevice> floatSensors;
+    private ICollection<GardenControlCore.Models.ControlDevice> ds18b20Thermometers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var controlDevices = await client.ControlDeviceGetAllAsync();
+
+
+        relays = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.Relay)
+            .Select(cd => new GardenControlCore.Models.ControlDevice {
+                ControlDeviceId = cd.ControlDeviceId,
+                Alias = cd.Alias,
+                DeviceTypeId = GardenControlCore.Enums.DeviceType.Relay
+            }).ToList();
+
+        floatSensors = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.FloatSensor)
+            .Select(cd => new GardenControlCore.Models.ControlDevice
+            {
+                ControlDeviceId = cd.ControlDeviceId,
+                Alias = cd.Alias,
+                DeviceTypeId = GardenControlCore.Enums.DeviceType.FloatSensor
+            }).ToList();
+
+        ds18b20Thermometers = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.DS18B20)
+            .Select(cd => new GardenControlCore.Models.ControlDevice
+            {
+                ControlDeviceId = cd.ControlDeviceId,
+                Alias = cd.Alias,
+                DeviceTypeId = GardenControlCore.Enums.DeviceType.DS18B20
+            }).ToList();
+    }
+}

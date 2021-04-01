@@ -12,7 +12,7 @@ namespace GardenControlCore.Models
     {
         public int ScheduleTaskId { get; init; }
 
-        public Schedule Schedule { get; set; }
+        public int ScheduleId { get; set; }
 
         public TaskAction TaskAction { get; set; }
 

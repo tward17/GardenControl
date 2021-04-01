@@ -1,0 +1,122 @@
+﻿@page "/device/create"
+@inject NavigationManager NavManager
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Create Control Device</h3>
+                @if (controlDevice == null)
+                {
+
+                    <p>Loading...</p>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-12">
+                            <form>
+                                <div class="form-group">
+                                    <label for="alias-input">Alias</label>
+                                    <input type="text" class="form-control" id="alias-input" @bind="@controlDevice.Alias" placeholder="Control Device's Alias">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <label for="device-type-select">Device Type</label>
+                                        <select id="device-type-select" class="form-control" @bind="controlDevice.DeviceTypeId" aria-describedby="device-type-helptext">
+                                            @foreach (var deviceType in Enum.GetValues(typeof(DeviceType)))
+                                            {
+                                                <option value="@deviceType">@deviceType.ToString()</option>
+                                            }
+                                        </select>
+                                        <small id="device-type-helptext" class="text-muted">
+                                            What type of device are you creating
+                                        </small>
+                                    </div>
+                                    @if (controlDevice.DeviceTypeId == DeviceType.Relay)
+                                    {
+                                        <div class="form-group col-sm-12 col-md-4">
+                                            <label for="default-state-select">Default State</label>
+                                            <select id="default-state-select" class="form-control" @bind="controlDevice.DefaultState" aria-describedby="default-state-helptext">
+                                                <option>Select</option>
+                                                @foreach (var defaultState in Enum.GetValues(typeof(DefaultState)))
+                                                {
+                                                    <option value="@defaultState">@defaultState.ToString()</option>
+                                                }
+                                            </select>
+                                            <small id="default-state-helptext" class="text-muted">
+                                                In cases where the Garden Control application or Pi is restarted, what state should the device default to when turned back on.
+                                            </small>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="description-input">Description</label>
+                                    <textarea class="form-control" id="description-input" rows="4" @bind="@controlDevice.Description" placeholder="Enter any additional details about the Control Device, such as location, colour coding etc."></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <label for="gpio-pin-select">GPIO Pin</label>
+                                        <select id="gpio-pin-select" class="form-control" @bind="controlDevice.GpioPinNumber" aria-describedby="gpio-helptext">
+                                            <option>Select</option>
+                                            @foreach (var pin in GardenControlCore.Helpers.RaspberryPi.GpioPins)
+                                            {
+                                                <option value="@pin">@pin</option>
+                                            }
+                                        </select>
+                                        <small id="gpio-helptext" class="text-muted">
+                                            Which GPIO Pin on the Pi is the device connected to
+                                        </small>
+                                    </div>
+                                    <div class="form-group col-sm-12 col-md-8">
+                                        <label for="serial-number-input">Serial Number</label>
+                                        <input type="text" class="form-control" id="serial-number-input" @bind="@controlDevice.SerialNumber" placeholder="The serial number of the device if it has one, for 1-wire protocol" aria-describedby="serial-helptext">
+                                        <small id="serial-helptext" class="text-muted">
+                                            Some devices require a specific serial number to identify which to read from, such as the DS18B20 sensor which uses the 1-wire protocol. You can find serial numbers by clicking <a href="#>" here></a>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="isactive-checkbox" class="custom-control-input" @bind="@controlDevice.IsActive" />
+                                            <label class="custom-control-label" for="isactive-checkbox">Is Active</label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <button type="button" class="btn btn-primary" @onclick="SaveControlDevice">Save</button> <button type="button" class="btn btn-secondary" @onclick="CancelUpdate">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    ControlDevice controlDevice = new ControlDevice { DeviceTypeId = DeviceType.Relay };
+
+
+    private void SaveControlDevice()
+    {
+        if (controlDevice == null)
+            throw new ArgumentNullException(nameof(controlDevice));
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        client.ControlDeviceInsertAsync(controlDevice);
+
+        NavManager.NavigateTo("/devices/");
+    }
+
+    private void CancelUpdate()
+    {
+        NavManager.NavigateTo("/devices/");
+    }
+}

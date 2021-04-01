@@ -29,11 +29,11 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Collection of Measurements</returns>
         /// <response code="200">Returns all measurements</response>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MeasurementDto>))]
-        public async Task<List<MeasurementDto>> Get()
+        [HttpGet(Name = "MeasurementGetAll")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Measurement>))]
+        public async Task<IEnumerable<Measurement>> Get()
         {
-            return _mapper.Map<List<MeasurementDto>>(await _measurementService.GetAllMeasurementsAsync());
+            return await _measurementService.GetAllMeasurementsAsync();
         }
 
         /// <summary>
@@ -42,15 +42,15 @@ namespace GardenControlApi.Controllers
         /// <returns>Returns single Measurement</returns>
         /// <response code="200">Returns all measurements</response>
         /// <response code="404">Could not find Measurement from id</response>
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MeasurementDto))]
+        [HttpGet("{id}", Name = "MeasurementGetById")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Measurement))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MeasurementDto>> Get(long id)
+        public async Task<ActionResult<Measurement>> Get([FromRoute] long id)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
 
-            return _mapper.Map<MeasurementDto>(await _measurementService.GetMeasurementByIdAsync(id));
+            return await _measurementService.GetMeasurementByIdAsync(id);
         }
 
         /// <summary>
@@ -59,11 +59,11 @@ namespace GardenControlApi.Controllers
         /// <returns>Returns created Measurement</returns>
         /// <response code="201">Measurement created successfully</response>
         /// <response code="400">Could not find Measurement from id</response>
-        [HttpPost]
+        [HttpPost(Name = "MeasurementInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<MeasurementDto>> Insert(MeasurementDto measurementDto)
+        public async Task<ActionResult<Measurement>> Insert([FromBody] Measurement measurement)
         {
-            var newMeasurement = await _measurementService.InsertMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
+            var newMeasurement = await _measurementService.InsertMeasurementAsync(measurement);
             return CreatedAtAction(nameof(Get), new { id = newMeasurement.MeasurementId }, newMeasurement);
         }
 
@@ -74,19 +74,19 @@ namespace GardenControlApi.Controllers
         /// <response code="204">Measurement updated successfully</response>
         /// <response code="400">Measurement Id in url and object do not match</response>
         /// <response code="404">Could not find Measurement from id</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "MeasurementUpdate")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(long id, MeasurementDto measurementDto)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] Measurement measurement)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();
 
-            if (id != measurementDto.MeasurementId)
+            if (id != measurement.MeasurementId)
                 return BadRequest();
 
-            await _measurementService.UpdateMeasurementAsync(_mapper.Map<Measurement>(measurementDto));
+            await _measurementService.UpdateMeasurementAsync(measurement);
 
             return NoContent();
         }
@@ -97,10 +97,10 @@ namespace GardenControlApi.Controllers
         /// <returns>Deletes single Measurement</returns>
         /// <response code="204">Measurement successfully deleted</response>
         /// <response code="404">Could not find Measurement from id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "MeasurementDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Delete([FromRoute] long id)
         {
             if (!(await MeasurementExists(id)))
                 return NotFound();

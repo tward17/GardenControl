@@ -1,0 +1,134 @@
+﻿@page "/devices"
+@using Models
+@using GardenControlCore.Helpers
+@inject IJSRuntime JSRuntime
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="card-title">Devices</h1>
+                        <p class="card-text">Devices are the sensors and switches that are connected to your Raspberry Pi. At the moment the supported devices are: Relays, DS18B20 Thermometers, and Float Sensors.</p>
+                        <div class="btn-group">
+                            <a href="device/create" class="btn btn-outline-primary"><span class="oi oi-plus" aria-hidden="true"></span> Add New Device</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (devices == null)
+{
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <p><em>Loading...</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+}
+else
+{
+    @foreach(var device in devices)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-9">
+                                <h3 class="card-title">@device.Alias</h3>
+                            </div>
+                            <div class="col-12 col-md-3 text-right">
+                                <a href="/device/edit/@device.ControlDeviceId" class="btn btn-outline-secondary"><span class="oi oi-pencil" aria-hidden="true"></span></a> <button class="btn btn-outline-danger" @onclick="() => DeleteDevice(device)"><span class="oi oi-delete" aria-hidden="true"></span></button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <dl>
+                                    <dt>Type</dt>
+                                    <dd>@device.DeviceType</dd>
+                                    <dt>Is Active</dt>
+                                    <dd>@device.IsActive</dd>
+                                    @if (!string.IsNullOrWhiteSpace(device.DefaultState))
+                                    {
+                                        <dt>Default State</dt>
+                                        <dd>@device.DefaultState</dd>
+                                    }
+                                </dl>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <dl>
+                                    <dt>GPIO Number</dt>
+                                    <dd>@device.GPIOPinNumber</dd>
+                                    @if (!string.IsNullOrWhiteSpace(device.SerialNumber))
+                                    {
+                                        <dt>Serial Number</dt>
+                                        <dd>@device.SerialNumber</dd>
+                                    }
+                                </dl>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <dl>
+                                    <dt>Description</dt>
+                                    <dd>@device.Description</dd>
+                                </dl>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+@code { 
+    private ICollection<ControlDeviceViewModel> devices;
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        var deviceList = await client.ControlDeviceGetAllAsync();
+
+        devices = deviceList.Select(x => new ControlDeviceViewModel
+        {
+            ControlDeviceId = x.ControlDeviceId,
+            Alias = x.Alias,
+            Description = x.Description,
+            DeviceTypeName = EnumHelper.GetControlDeviceTypeFriendlyName((GardenControlCore.Enums.DeviceType)x.DeviceTypeId),
+            GPIOPinNumber = x.GpioPinNumber,
+            IsActive = x.IsActive,
+            SerialNumber = x.SerialNumber,
+            DefaultState = (x.DefaultState.HasValue ? Enum.GetName(typeof(GardenControlCore.Enums.DefaultState), x.DefaultState) : string.Empty)
+        }).ToList();
+    }
+
+    private async Task DeleteDevice(ControlDeviceViewModel controlDevice)
+    {
+        if (!await JSRuntime.Confirm($"Are you sure you want to delete the Control Device \"{controlDevice.Alias}\"?"))
+            return;
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        try
+        {
+            await client.ControlDeviceDeleteAsync(controlDevice.ControlDeviceId);
+            devices.Remove(controlDevice);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            this.StateHasChanged();
+        }
+    }
+}

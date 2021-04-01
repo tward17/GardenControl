@@ -1,0 +1,368 @@
+﻿@page "/scheduler/edit/{ScheduleId:int}"
+
+@inject NavigationManager NavManager
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Edit Schedule</h3>
+                @if (EditSchedule == null)
+                {
+
+                    <p>Loading...</p>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-12">
+                            <form>
+                                <div class="form-group">
+                                    <label for="alias-input">Name</label>
+                                    <input type="text" class="form-control" id="alias-input" @bind="@EditSchedule.Name" placeholder="Schedule's Name">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <label for="trigger-type-select">Trigger Type</label>
+                                        <select id="trigger-type-select" class="form-control" @onchange="UpdateTriggerType" value="@EditSchedule.TriggerType" aria-describedby="trigger-type-helptext">
+                                            @foreach (var triggerType in Enum.GetValues(typeof(TriggerType)))
+                                            {
+                                                <option value="@triggerType">@triggerType.ToString()</option>
+                                            }
+                                        </select>
+                                        <small id="trigger-type-helptext" class="text-muted">
+                                            What event will happen that triggers the schedule
+                                        </small>
+                                    </div>
+                                    @switch (EditSchedule.TriggerType)
+                                    {
+                                        case TriggerType.TimeOfDay:
+                                            <div class="form-group col-sm-12 col-md-4">
+                                                <label for="default-state-select">Time of Day</label>
+                                                <input class="form-control" type="time" @bind="@EditSchedule.TriggerTimeOfDay" />
+                                                <small id="default-state-helptext" class="text-muted">
+                                                    What time of day should the schedule run
+                                                </small>
+                                            </div>
+                                            break;
+                                        case TriggerType.Interval:
+                                            <div class="form-group col-sm-12 col-md-8">
+                                                <label for="default-state-select">Interval Amount</label>
+                                                <div class="input-group">
+                                                    <input class="form-control input-group-prepend" type="number" @bind="@EditSchedule.IntervalAmount" />
+                                                    <select class="custom-select input-group-append" @bind="@EditSchedule.IntervalAmountTimeIntervalUnit">
+                                                        @foreach (var unit in Enum.GetValues(typeof(TimeIntervalUnit)))
+                                                        {
+                                                            <option value="@unit">@unit.ToString()</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <small id="default-state-helptext" class="text-muted">
+                                                    Interval between the schedule running
+                                                </small>
+                                            </div>
+                                            break;
+                                        case TriggerType.Sunrise:
+                                        case TriggerType.Sunset:
+                                            <div class="form-group col-sm-12 col-md-8">
+                                                <label for="default-state-select">Trigger Offset Amount</label>
+                                                <div class="input-group">
+                                                    <input class="form-control input-group-prepend" type="number" @bind="@EditSchedule.TriggerOffsetAmount" />
+                                                    <select class="custom-select input-group-append" @bind="@EditSchedule.TriggerOffsetAmountTimeIntervalUnit">
+                                                        @foreach (var unit in Enum.GetValues(typeof(TimeIntervalUnit)))
+                                                        {
+                                                            <option value="@unit">@unit.ToString()</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <small id="default-state-helptext" class="text-muted">
+                                                    Should the schedule run at a set offset from the trigger event, for example, 15 minutes after sunset.
+                                                </small>
+                                            </div>
+                                            break;
+                                    }
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="isactive-checkbox" class="custom-control-input" @bind="@EditSchedule.IsActive" />
+                                            <label class="custom-control-label" for="isactive-checkbox">Is Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <label for="first-runtime-input">Next Run Time</label>
+                                        <input type="datetime-local" class="form-control" id="first-runtime-input" @bind="@EditSchedule.NextRunDateTime" aria-describedby="serial-helptext">
+                                        <small id="serial-helptext" class="text-muted">
+                                            When should this schedule run for the first time
+                                        </small>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h3>Tasks</h3>
+                            <p>Below are the tasks that will be performed by this schedule.</p>
+                            <div class=" table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Device</th>
+                                            <th>Action</th>
+                                            <th>Is Active</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (EditSchedule.ScheduleTasks.Any())
+                                        {
+                                            foreach (var scheduleTask in EditSchedule.ScheduleTasks)
+                                            {
+                                                if (EditScheduleTask != null && EditScheduleTask.Equals(scheduleTask))
+                                                {
+                                                    <tr>
+                                                        <td>@scheduleTask.ControlDevice.Alias</td>
+                                                        <td>
+                                                            <select id="edit-device-select" class="form-control" @onchange="UpdateEditScheduleTaskAction" value="@EditScheduleTask.TaskAction.TaskActionId">
+                                                                @foreach (var taskAction in TaskActions.Where(x => x.DeviceType == EditScheduleTask.ControlDevice.DeviceTypeId).ToList())
+                                                                {
+                                                                    <option value="@taskAction.TaskActionId">@taskAction.Name</option>
+                                                                }
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <div class="custom-control custom-switch">
+                                                                <input type="checkbox" id="edit-task-isactive-checkbox" class="custom-control-input" @bind="@EditScheduleTask.IsActive" />
+                                                                <label class="custom-control-label" for="edit-task-isactive-checkbox">Active</label>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-right"><button class="btn btn-outline-primary" @onclick="() => SaveUpdateScheduleTask()" title="Save"><span class="oi oi-check"></span></button> <button class="btn btn-outline-secondary" @onclick="() => CancelUpdateScheduleTask()" title="Cancel"><span class="oi oi-x"></span></button></td>
+                                                    </tr>
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td>@scheduleTask.ControlDevice.Alias</td>
+                                                        <td>@TaskActions.Where(x => x.TaskActionId == scheduleTask.TaskAction.TaskActionId).FirstOrDefault().Name</td>
+                                                        <td>@scheduleTask.IsActive</td>
+                                                        <td class="text-right"><button class="btn btn-outline-secondary" @onclick="() => UpdateScheduleTask(scheduleTask)" title="Edit"><span class="oi oi-pencil"></span></button> <button class="btn btn-outline-danger" @onclick="() => RemoveScheduleTask(scheduleTask)" title="Delete"><span class="oi oi-delete"></span></button></td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4">No Tasks</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td>
+                                                <select id="new-device-select" class="form-control" @onchange="UpdateNewScheduleTaskDevice">
+                                                    @foreach (var device in ControlDevices)
+                                                    {
+                                                        <option value="@device.ControlDeviceId">@device.Alias</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="device-select" class="form-control" @onchange="UpdateNewScheduleTaskAction">
+                                                    @foreach (var taskAction in TaskActions.Where(x => x.DeviceType == NewScheduleTask.ControlDevice.DeviceTypeId).ToList())
+                                                    {
+                                                        <option value="@taskAction.TaskActionId">@taskAction.Name</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" id="new-task-isactive-checkbox" class="custom-control-input" @bind="@NewScheduleTask.IsActive" />
+                                                    <label class="custom-control-label" for="new-task-isactive-checkbox">Is Active</label>
+                                                </div>
+                                            </td>
+                                            <td class="text-right">
+                                                <button type="button" class="btn btn-outline-primary" @onclick="InsertScheduleTask"><span class="oi oi-plus"></span> Add</button>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-primary" @onclick="SaveSchedule">Save</button> <a href="/scheduler" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int scheduleId { get; set; }
+    private Schedule EditSchedule = null;
+
+    private ScheduleTask NewScheduleTask = new ScheduleTask();
+    private ScheduleTask EditScheduleTask = null;
+
+    //private ICollection<TriggerType> TriggerTypes;
+    private ICollection<ControlDevice> ControlDevices;
+    private ICollection<TaskAction> TaskActions;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        EditSchedule = await client.ScheduleGetByIdAsync(scheduleId);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+
+        ControlDevices = client.ControlDeviceGetAllAsync().Result.Where(x => x.IsActive).ToList();
+
+        TaskActions = client.TaskActionGetAllAsync().Result;
+
+        NewScheduleTask.ControlDevice = ControlDevices.FirstOrDefault();
+        NewScheduleTask.TaskAction = TaskActions.Where(x => x.DeviceType == NewScheduleTask.ControlDevice.DeviceTypeId).FirstOrDefault();
+    }
+
+    private void UpdateTriggerType(ChangeEventArgs e)
+    {
+        EditSchedule.TriggerType = (TriggerType)Enum.Parse(typeof(TriggerType), e.Value.ToString());
+
+        EditSchedule.TriggerTimeOfDay = null;
+        EditSchedule.IntervalAmount = null;
+        EditSchedule.IntervalAmountTimeIntervalUnit = null;
+        EditSchedule.TriggerOffsetAmount = null;
+        EditSchedule.TriggerOffsetAmountTimeIntervalUnit = null;
+
+        @switch (EditSchedule.TriggerType)
+        {
+            case TriggerType.TimeOfDay:
+                EditSchedule.TriggerTimeOfDay = DateTime.Now;
+                break;
+            case TriggerType.Interval:
+                EditSchedule.IntervalAmount = 0;
+                EditSchedule.IntervalAmountTimeIntervalUnit = TimeIntervalUnit.Minutes;
+                break;
+            case TriggerType.Sunrise:
+            case TriggerType.Sunset:
+                EditSchedule.TriggerOffsetAmount = 0;
+                EditSchedule.TriggerOffsetAmountTimeIntervalUnit = TimeIntervalUnit.Minutes;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Sets the page in a state to create a new schedule task
+    /// </summary>
+    private void AddNewScheduleTask()
+    {
+        NewScheduleTask = new ScheduleTask();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    private void UpdateNewScheduleTaskDevice(ChangeEventArgs e)
+    {
+        var controlDeviceId = int.Parse(e.Value.ToString());
+
+        NewScheduleTask.ControlDevice = ControlDevices.Where(x => x.ControlDeviceId == controlDeviceId).FirstOrDefault();
+        NewScheduleTask.TaskAction = TaskActions.Where(x => x.DeviceType == NewScheduleTask.ControlDevice.DeviceTypeId).FirstOrDefault();
+        this.StateHasChanged();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="e"></param>
+    private void UpdateNewScheduleTaskAction(ChangeEventArgs e)
+    {
+        var taskActionId = (TaskActionId)Enum.Parse(typeof(TaskActionId), e.Value.ToString());
+        NewScheduleTask.TaskAction = TaskActions.Where(x => x.TaskActionId == taskActionId).FirstOrDefault();
+
+    }
+
+    /// <summary>
+    /// Adds the new schedule task to the schedule
+    /// </summary>
+    private void InsertScheduleTask()
+    {
+        EditSchedule.ScheduleTasks.Add(NewScheduleTask);
+        NewScheduleTask = new ScheduleTask
+        {
+            ControlDevice = ControlDevices.FirstOrDefault(),
+            TaskAction = TaskActions.Where(x => x.DeviceType == NewScheduleTask.ControlDevice.DeviceTypeId).FirstOrDefault()
+        };
+        this.StateHasChanged();
+    }
+
+    private void UpdateScheduleTask(ScheduleTask scheduleTask)
+    {
+        EditScheduleTask = scheduleTask;
+        this.StateHasChanged();
+    }
+
+    private void UpdateEditScheduleTaskAction(ChangeEventArgs e)
+    {
+        var taskActionId = (TaskActionId)Enum.Parse(typeof(TaskActionId), e.Value.ToString());
+        EditScheduleTask.TaskAction = TaskActions.Where(x => x.TaskActionId == taskActionId).FirstOrDefault();
+    }
+
+    private void SaveUpdateScheduleTask()
+    {
+        var taskToUpdate = EditSchedule.ScheduleTasks.Where(x => x.Equals(EditScheduleTask)).FirstOrDefault();
+
+        taskToUpdate.TaskAction = EditScheduleTask.TaskAction;
+        taskToUpdate.IsActive = EditScheduleTask.IsActive;
+
+        EditScheduleTask = null;
+        this.StateHasChanged();
+    }
+
+    private void CancelUpdateScheduleTask()
+    {
+        EditScheduleTask = null;
+        this.StateHasChanged();
+    }
+
+    private void CancelScheduleTaskAdd()
+    {
+        NewScheduleTask = null;
+        this.StateHasChanged();
+    }
+
+    /// <summary>
+    /// Removes a schedule task from the schedule
+    /// </summary>
+    /// <param name="scheduleTask"></param>
+    private void RemoveScheduleTask(ScheduleTask scheduleTask)
+    {
+        EditSchedule.ScheduleTasks.Remove(scheduleTask);
+        this.StateHasChanged();
+    }
+
+    private async Task SaveSchedule()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        try
+        {
+            await client.ScheduleUpdateAsync(scheduleId, EditSchedule);
+            NavManager.NavigateTo("/scheduler/");
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

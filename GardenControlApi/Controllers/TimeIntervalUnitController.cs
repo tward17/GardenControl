@@ -21,7 +21,7 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>List of Time Interval Units</returns>
         /// <response code="200">Returns all the possible Time Interval Units</response>
-        [HttpGet]
+        [HttpGet(Name = "TimeIntervalUnitGetAll")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TimeIntervalUnitDto>))]
         public List<TimeIntervalUnitDto> Get()
         {
@@ -41,10 +41,10 @@ namespace GardenControlApi.Controllers
         /// <returns>The speicied Time Interval Unit</returns>
         /// <response code="200">Returns the specified Time Interval Unit</response>
         /// <response code="404">Could not find Time Interval Unit with id</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "TimeIntervalUnitGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TimeIntervalUnitDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TimeIntervalUnitDto> Get(int id)
+        public ActionResult<TimeIntervalUnitDto> Get([FromRoute] int id)
         {
             if (Enum.IsDefined(typeof(TimeIntervalUnit), id))
             {

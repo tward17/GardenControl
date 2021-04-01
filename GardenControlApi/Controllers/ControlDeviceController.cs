@@ -31,10 +31,10 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Returns all Control Devices</returns>
         /// <response code="200">Returns all control devices</response>
-        [HttpGet]
-        public async Task<IEnumerable<ControlDeviceDto>> Get()
+        [HttpGet(Name = "ControlDeviceGetAll")]
+        public async Task<IEnumerable<ControlDevice>> Get()
         {
-            return _mapper.Map<IEnumerable<ControlDeviceDto>>(await _deviceControlService.GetAllDevicesAsync());
+            return await _deviceControlService.GetAllDevicesAsync();
         }
 
         /// <summary>
@@ -43,15 +43,15 @@ namespace GardenControlApi.Controllers
         /// <returns>Returns the specified Control Device</returns>
         /// <response code="200">Returns the specified control device</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDeviceDto))]
+        [HttpGet("{id}", Name = "ControlDeviceGetById")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(ControlDevice))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ControlDeviceDto>> Get(int id)
+        public async Task<ActionResult<ControlDevice>> Get([FromRoute] int id)
         {
             if (!(await ControlDeviceExists(id)))
                 return NotFound();
 
-            return _mapper.Map<ControlDeviceDto>(await _deviceControlService.GetDeviceAsync(id));
+            return await _deviceControlService.GetDeviceAsync(id);
         }
 
         /// <summary>
@@ -59,11 +59,11 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Returns the created Control Device</returns>
         /// <response code="201">Control Device created successfully</response>
-        [HttpPost]
+        [HttpPost(Name = "ControlDeviceInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Insert([FromBody] ControlDeviceDto value)
+        public async Task<IActionResult> Insert([FromBody] ControlDevice value)
         {
-            var newControlDevice = await _deviceControlService.InsertDeviceAsync(_mapper.Map<ControlDevice>(value));
+            var newControlDevice = await _deviceControlService.InsertDeviceAsync(value);
 
             return CreatedAtAction(nameof(Get), new { id = newControlDevice.ControlDeviceId }, newControlDevice);
         }
@@ -75,11 +75,11 @@ namespace GardenControlApi.Controllers
         /// <response code="204">Control Device successfully updated</response>
         /// <response code="400">Control Device Id in url and object do not match</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "ControlDeviceUpdate")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, [FromBody] ControlDeviceDto value)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ControlDevice value)
         {
             if (id != value.ControlDeviceId)
                 return BadRequest();
@@ -87,7 +87,7 @@ namespace GardenControlApi.Controllers
             if (!(await ControlDeviceExists(id)))
                 return NotFound();
 
-            await _deviceControlService.UpdateDeviceAsync(_mapper.Map<ControlDevice>(value));
+            await _deviceControlService.UpdateDeviceAsync(value);
 
             return NoContent();
         }
@@ -98,10 +98,10 @@ namespace GardenControlApi.Controllers
         /// <returns></returns>
         /// <response code="204">Control Device successfully deleted</response>
         /// <response code="404">Could not find a control device with the specified id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "ControlDeviceDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!(await ControlDeviceExists(id)))
                 return NotFound();

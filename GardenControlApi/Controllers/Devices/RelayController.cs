@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GardenControlApi.Models;
+using GardenControlCore.Enums;
 using GardenControlServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,21 +34,16 @@ namespace GardenControlApi.Controllers.Devices
         /// <response code="200">Returns relay state</response>
         /// <response code="404">Could not find relay from id</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RelayDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RelayState))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<RelayDto> Get(int id)
+        public async Task<RelayState> Get([FromRoute] int id)
         {
             var controlDeviceReading = await _relayService.GetRelayState(id);
 
             if (controlDeviceReading == null)
                 throw new Exception("Unable to take relay reading");
 
-            var response = new RelayDto
-            {
-                RelayState = Enum.GetName(controlDeviceReading)
-            };
-
-            return response;
+            return controlDeviceReading;
         }
 
         /// <summary>
@@ -61,7 +57,7 @@ namespace GardenControlApi.Controllers.Devices
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Post(int id, RelaySetStateDto relaySetState)
+        public async Task<IActionResult> Post([FromRoute] int id, [FromBody] RelaySetStateDto relaySetState)
         {
             if (id != relaySetState.DeviceId)
                 return BadRequest();
