@@ -79,13 +79,20 @@ else
                                 else
                                 {
                                     <div class="table-responsive">
-                                        <table class="table">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Device</th>
+                                                    <th>Type</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
                                             @foreach(var scheduleTask in schedule.ScheduleTasks.Where(x => x.IsActive))
                                             {
                                             <tr>
                                                 <td>@scheduleTask.ControlDevice.Alias</td>
                                                 <td>@scheduleTask.ControlDevice.DeviceTypeId</td>
-                                                <td>@scheduleTask.TaskAction.ToString()</td>
+                                                <td>@TaskActions.Where(x => x.TaskActionId == scheduleTask.TaskAction.TaskActionId).FirstOrDefault().Name</td>
                                             </tr>
                                             }
                                         </table>
@@ -103,6 +110,7 @@ else
 @code {
     private ICollection<Schedule> schedules;
     private ICollection<TriggerTypeDto> triggerTypes;
+    private ICollection<TaskAction> TaskActions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,6 +118,8 @@ else
         triggerTypes = await client.TriggerTypeGetAllAsync();
 
         schedules = await client.ScheduleGetAllAsync();
+
+        TaskActions = await client.TaskActionGetAllAsync();
     }
 
     private async Task DeleteSchedule(Schedule schedule)

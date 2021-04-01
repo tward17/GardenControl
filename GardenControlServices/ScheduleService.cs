@@ -169,6 +169,7 @@ namespace GardenControlServices
             // get the existing schedule entity from the database, including tasks
             var scheduleEntity = await _scheduleRepository.GetScheduleByIdAsync(schedule.ScheduleId);
 
+            //TODO: Better exception
             if (scheduleEntity == null)
                 throw new Exception();
 

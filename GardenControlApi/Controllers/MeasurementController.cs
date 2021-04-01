@@ -40,7 +40,7 @@ namespace GardenControlApi.Controllers
         /// Returns specified Measurement
         /// </summary>
         /// <returns>Returns single Measurement</returns>
-        /// <response code="200">Returns all measurements</response>
+        /// <response code="200">Returns specified measurement</response>
         /// <response code="404">Could not find Measurement from id</response>
         [HttpGet("{id}", Name = "MeasurementGetById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Measurement))]
@@ -58,7 +58,6 @@ namespace GardenControlApi.Controllers
         /// </summary>
         /// <returns>Returns created Measurement</returns>
         /// <response code="201">Measurement created successfully</response>
-        /// <response code="400">Could not find Measurement from id</response>
         [HttpPost(Name = "MeasurementInsert")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Measurement>> Insert([FromBody] Measurement measurement)

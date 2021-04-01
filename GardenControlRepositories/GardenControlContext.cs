@@ -18,5 +18,6 @@ namespace GardenControlRepositories
         public DbSet<ScheduleEntity> ScheduleEntities { get; set; }
         public DbSet<ScheduleTaskEntity> ScheduleTaskEntities { get; set; }
 
+        public DbSet<VideoFeedEntity> VideoFeedEntities { get; set; }
     }
 }
