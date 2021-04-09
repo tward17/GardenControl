@@ -1,0 +1,80 @@
+﻿@page "/videofeeds/edit/{VideoFeedId:int}"
+@inject NavigationManager NavManager
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Edit Video Feed</h3>
+                @if (videoFeed == null)
+                {
+
+                    <p>Loading...</p>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-12">
+                            <form>
+                                <div class="form-group">
+                                    <label for="alias-input">Name</label>
+                                    <input type="text" class="form-control" id="alias-input" @bind="@videoFeed.Name" placeholder="Video Feed Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="alias-input">Feed Url</label>
+                                    <input type="text" class="form-control" id="alias-input" @bind="@videoFeed.FeedUrl" placeholder="Video Feed Url">
+                                </div>
+                                <div class="form-group">
+                                    <label for="description-input">Description</label>
+                                    <textarea class="form-control" id="description-input" rows="4" @bind="@videoFeed.Description" placeholder="Enter any additional details about the Video Feed, such as location, camera type etc."></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-sm-12 col-md-4">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="isactive-checkbox" class="custom-control-input" @bind="@videoFeed.IsActive" />
+                                            <label class="custom-control-label" for="isactive-checkbox">Is Active</label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <button type="button" class="btn btn-primary" @onclick="SaveVideoFeed">Save</button> <button type="button" class="btn btn-secondary" @onclick="CancelInsert">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int videoFeedId { get; set; }
+    VideoFeed videoFeed = new VideoFeed();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        videoFeed = await client.VideoFeedGetByIdAsync(videoFeedId);
+
+        if (videoFeed == null)
+            throw new Exception();
+    }
+
+    private void SaveVideoFeed()
+    {
+        if (videoFeed == null)
+            throw new ArgumentNullException(nameof(videoFeed));
+
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        client.VideoFeedUpdateAsync(videoFeed.VideoFeedId, videoFeed);
+
+        NavManager.NavigateTo("/videofeeds/");
+    }
+
+    private void CancelInsert()
+    {
+        NavManager.NavigateTo("/videofeeds/");
+    }
+}
