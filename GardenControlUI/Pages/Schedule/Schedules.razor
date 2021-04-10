@@ -58,7 +58,7 @@ else
                             </div>
                             <div class="col-12 col-md-6 text-md-right">
                                 <div class="btn-group" role="group">
-                                    <button class="btn btn-outline-success" title="Run Now"><span class="oi oi-media-play" aria-hidden="true"></span> Run Now</button><a href="/scheduler/edit/@schedule.ScheduleId" class="btn btn-outline-secondary" title="Edit"><span class="oi oi-pencil" aria-hidden="true"></span> Edit</a><button class="btn btn-outline-danger" @onclick="() => DeleteSchedule(schedule)" title="Delete"><span class="oi oi-delete" aria-hidden="true"></span> Delete</button>
+                                    <button class="btn btn-outline-success" @onclick="() => RunScheduleNow(schedule)" title="Run Now"><span class="oi oi-media-play" aria-hidden="true"></span> Run Now</button><a href="/scheduler/edit/@schedule.ScheduleId" class="btn btn-outline-secondary" title="Edit"><span class="oi oi-pencil" aria-hidden="true"></span> Edit</a><button class="btn btn-outline-danger" @onclick="() => DeleteSchedule(schedule)" title="Delete"><span class="oi oi-delete" aria-hidden="true"></span> Delete</button>
                                 </div>
                                 
                             </div>
@@ -122,6 +122,26 @@ else
         TaskActions = await client.TaskActionGetAllAsync();
     }
 
+    private async Task RunScheduleNow(Schedule schedule)
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+
+        try
+        {
+            await client.ScheduleRunNowByIdAsync(schedule.ScheduleId);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            schedules = await client.ScheduleGetAllAsync();
+            this.StateHasChanged();
+        }
+    }
+
     private async Task DeleteSchedule(Schedule schedule)
     {
         if (!await JSRuntime.Confirm($"Are you sure you want to delete the Schedule \"{schedule.Name}\"?"))
@@ -131,7 +151,7 @@ else
 
         try
         {
-            client.ScheduleDeleteAsync(schedule.ScheduleId);
+            await client.ScheduleDeleteAsync(schedule.ScheduleId);
             schedules.Remove(schedule);
         }
         catch (Exception)

@@ -73,6 +73,16 @@ namespace GardenControlServices
             ValidateControlDevice(controlDevice);
 
             // Toggle the state of the pin. May need to check the cache to get the current value instead of polling the pin.
+            var relayState = await GetRelayState(id);
+
+            if(relayState == RelayState.Off)
+            {
+                await SetRelayState(id, RelayState.On);
+            }
+            else
+            {
+                await SetRelayState(id, RelayState.Off);
+            }
         }
 
         private void ValidateControlDevice(ControlDevice controlDevice)

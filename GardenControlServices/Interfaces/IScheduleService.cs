@@ -19,6 +19,8 @@ namespace GardenControlServices.Interfaces
         public Task<Schedule> UpdateScheduleAsync(Schedule schedule);
         public Task UpdateScheduleNextRunTimeAsync(int id, DateTime nextRunDateTime);
         public Task DeleteScheduleAsync(int id);
+        public Task RunPendingSchedules();
+        public Task RunSchedule(Schedule schedule);
         #endregion
 
         #region ScheduleTasks

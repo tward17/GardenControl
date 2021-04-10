@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlCore", "GardenControlCore\GardenControlCore.csproj", "{B5D9CA5C-C1EF-4ED9-8B36-2C203ADF1D3E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GardenControlUI", "GardenControlUI\GardenControlUI.csproj", "{FF2D01BD-3B0A-4CDE-A305-EE6AFF6627CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GardenControlDaemon", "GardenControlDaemon\GardenControlDaemon.csproj", "{AAE6B67E-CFA0-4E8E-9F44-9E606C519506}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

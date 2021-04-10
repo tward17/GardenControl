@@ -1,0 +1,74 @@
+﻿using GardenControlCore.Enums;
+using GardenControlServices;
+using GardenControlServices.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace GardenControlDaemon
+{
+    public class ScheduleWorker : IHostedService, IDisposable
+    {
+        private IConfiguration _configuration { get; init; }
+        private HttpClient _httpClient { get; init; }
+        private Timer _timer;
+
+        public ScheduleWorker(IConfiguration configuration)
+        {
+            _httpClient = new HttpClient();
+            _configuration = configuration;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            _timer = new Timer(RunPendingSchedules, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _timer?.Change(Timeout.Infinite, 0);
+
+            return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _timer.Dispose();
+        }
+
+        private async void RunPendingSchedules(object state)
+        {
+            var baseUrl = string.Empty;
+
+#if DEBUG
+            baseUrl = _configuration.GetValue<string>("ApiEndPointBaseUrl");
+#else
+            baseUrl = Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING");
+#endif
+
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                baseUrl = "http://jonpi.lan:1708";
+            try
+            {
+                var result = await _httpClient.GetAsync($"{baseUrl}/api/Schedule/RunPendingSchedules");
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    var x = "this";
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+}

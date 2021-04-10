@@ -44,6 +44,7 @@ namespace GardenControlApi
                 mc.AddProfile(new ControlDeviceDtoProfile());
                 mc.AddProfile(new DS18B20DtoProfile());
                 mc.AddProfile(new AppSettingDtoProfile());
+                mc.AddProfile(new MeasurementProfile());
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
                 mc.AddProfile(new ScheduleProfile());
@@ -90,7 +91,7 @@ namespace GardenControlApi
             services.AddTransient<IMeasurementRepository, MeasurementRepository>();
             services.AddTransient<IMeasurementService, MeasurementService>();
             services.AddTransient<IScheduleRepository, ScheduleRepository>();
-            services.AddTransient<IScheduleService, scheduleService>();
+            services.AddTransient<IScheduleService, ScheduleService>();
             services.AddTransient<IVideoFeedsRepository, VideoFeedRepository>();
             services.AddTransient<IVideoFeedsService, VideoFeedsService>();
             services.AddTransient<DS18B20Service>();
