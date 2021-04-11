@@ -5,6 +5,7 @@ using GardenControlCore.Scheduler;
 using GardenControlRepositories.Entities;
 using GardenControlRepositories.Interfaces;
 using GardenControlServices.Interfaces;
+using Innovative.SolarCalculator;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace GardenControlServices
 {
     public class ScheduleService : IScheduleService
     {
+        private IAppSettingsService _appSettingsService { get; init; }
         private IControlDeviceRepository _controlDeviceRepository { get; init; }
         private ILogger<ScheduleService> _logger { get; init; }
         private IScheduleRepository _scheduleRepository { get; init; }
@@ -27,7 +29,8 @@ namespace GardenControlServices
 
         private List<TaskAction> _TaskActionsList { get; init; }
 
-        public ScheduleService(IControlDeviceRepository controlDeviceRepository,
+        public ScheduleService(IAppSettingsService appSettingsService,
+            IControlDeviceRepository controlDeviceRepository,
             ILogger<ScheduleService> logger, 
             IScheduleRepository scheduleRepository, 
             IMapper mapper,
@@ -36,6 +39,7 @@ namespace GardenControlServices
             FloatSensorService floatSensorService,
             IMeasurementService measurementService)
         {
+            _appSettingsService = appSettingsService;
             _controlDeviceRepository = controlDeviceRepository;
             _logger = logger;
             _scheduleRepository = scheduleRepository;
@@ -138,7 +142,7 @@ namespace GardenControlServices
                 });
             }
 
-            newScheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
+            newScheduleEntity.NextRunDateTime = await CalculateNextRunTime(schedule);
 
             Schedule insertedSchedule;
 
@@ -181,7 +185,7 @@ namespace GardenControlServices
             scheduleEntity.TriggerOffsetAmountTimeIntervalUnitId = schedule.TriggerOffsetAmountTimeIntervalUnit;
             scheduleEntity.IntervalAmount = schedule.IntervalAmount;
             scheduleEntity.IntervalAmountTimeIntervalUnitId = schedule.IntervalAmountTimeIntervalUnit;
-            scheduleEntity.NextRunDateTime = CalculateNextRunTime(schedule);
+            scheduleEntity.NextRunDateTime = await CalculateNextRunTime(schedule);
 
             // Update the schedule tasks
 
@@ -254,7 +258,7 @@ namespace GardenControlServices
             }
 
             // once tasks are completed, update the next run time value for the schedule
-            await UpdateScheduleNextRunTimeAsync(schedule.ScheduleId, CalculateNextRunTime(schedule));
+            await UpdateScheduleNextRunTimeAsync(schedule.ScheduleId, await CalculateNextRunTime(schedule));
         }
 
         #endregion
@@ -411,13 +415,18 @@ namespace GardenControlServices
         /// </summary>
         /// <param name="schedule"></param>
         /// <returns></returns>
-        public DateTime CalculateNextRunTime(Schedule schedule)
+        public async Task<DateTime> CalculateNextRunTime(Schedule schedule)
         {
             if (schedule == null)
                 throw new ArgumentNullException();
 
             var nextRunTime = new DateTime();
             var currentDateTime = DateTime.Now;
+
+            AppSetting latitude = null;
+            AppSetting longitude = null;
+            SolarTimes solarTimes = null;
+
             switch (schedule.TriggerType)
             {
                 case TriggerType.TimeOfDay:
@@ -453,20 +462,42 @@ namespace GardenControlServices
 
                     break;
                 case TriggerType.Sunrise:
-                    // TODO: implement sunrise check
+                    latitude = await _appSettingsService.GetAppSettingByKeyAsync("LocationLatitude");
+                    longitude = await _appSettingsService.GetAppSettingByKeyAsync("LocationLongitude");
+
+                    if(string.IsNullOrWhiteSpace(latitude.Value) || string.IsNullOrWhiteSpace(longitude.Value))
+                    {
+                        return DateTime.Now;
+                    }
+
                     // Get Sunrise for today
+                    solarTimes = new SolarTimes(currentDateTime, double.Parse(latitude.Value), double.Parse(longitude.Value));
+
                     // If Sunrise today is in the past
-                        // Get Sunrise for tomorrow and set that value
-                    // else
-                        // Set sunrise for today as the value
+                    // Get Sunrise for tomorrow and set that value
+                    if (solarTimes.Sunrise < currentDateTime)
+                        solarTimes = new SolarTimes(currentDateTime.AddDays(1), double.Parse(latitude.Value), double.Parse(longitude.Value));
+
+                    nextRunTime = GetAdjustedTime(solarTimes.Sunrise, (schedule.TriggerOffsetAmount ?? 0), (schedule.TriggerOffsetAmountTimeIntervalUnit ?? TimeIntervalUnit.Seconds));
                     break;
                 case TriggerType.Sunset:
-                    // TODO: implement sunset check
+                    latitude = await _appSettingsService.GetAppSettingByKeyAsync("LocationLatitude");
+                    longitude = await _appSettingsService.GetAppSettingByKeyAsync("LocationLongitude");
+
+                    if (string.IsNullOrWhiteSpace(latitude.Value) || string.IsNullOrWhiteSpace(longitude.Value))
+                    {
+                        return DateTime.Now;
+                    }
+
                     // Get Sunset for today
+                    solarTimes = new SolarTimes(currentDateTime, double.Parse(latitude.Value), double.Parse(longitude.Value));
+
                     // If Sunset today is in the past
-                        // Get Sunset for tomorrow and set that value
-                    // else
-                        // Set sunset for today as the value
+                    // Get Sunset for tomorrow and set that value
+                    if (solarTimes.Sunset < currentDateTime)
+                        solarTimes = new SolarTimes(currentDateTime.AddDays(1), double.Parse(latitude.Value), double.Parse(longitude.Value));
+
+                    nextRunTime = GetAdjustedTime(solarTimes.Sunset, (schedule.TriggerOffsetAmount ?? 0), (schedule.TriggerOffsetAmountTimeIntervalUnit ?? TimeIntervalUnit.Seconds));
                     break;
             }
 

@@ -1,6 +1,7 @@
 ﻿@page "/scheduler"
 
 @using Models
+@using System.Text
 
 @inject IJSRuntime JSRuntime
 
@@ -65,10 +66,16 @@ else
                         </div>
                         <div class="row">
                             <div class="col-sm-12 col-md-6">
-                                <p>Trigger Type: @schedule.TriggerType</p>
-                                <p>Trigger</p>
-                                <p>Next Run Time: @schedule.NextRunDateTime</p>
-                                <p>Is Active: @schedule.IsActive</p>
+                                <dl>
+                                    <dt>Trigger Type</dt>
+                                    <dd>@schedule.TriggerType</dd>
+                                    <dt>Trigger</dt>
+                                    <dd>@TriggerString(schedule)</dd>
+                                    <dt>Next Run Time</dt>
+                                    <dd>@schedule.NextRunDateTime.DateTime</dd>
+                                    <dt>Is Active</dt>
+                                    <dd>@schedule.IsActive</dd>
+                                </dl>
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <h4>Tasks</h4>
@@ -129,6 +136,43 @@ else
 
         schedules = await client.ScheduleGetAllAsync();
         this.StateHasChanged();
+    }
+
+    private string TriggerString(Schedule schedule)
+    {
+        StringBuilder triggerString = new StringBuilder();
+
+        switch (schedule.TriggerType)
+        {
+            case TriggerType.Interval:
+                triggerString.Append($"Run every {schedule.IntervalAmount} {schedule.IntervalAmountTimeIntervalUnit}");
+                break;
+            case TriggerType.TimeOfDay:
+                triggerString.Append($"Run at {schedule.TriggerTimeOfDay.Value.ToString("HH:mm")} every day");
+                break;
+            case TriggerType.Sunrise:
+            case TriggerType.Sunset:
+                triggerString.Append($"Run at");
+
+                if (schedule.TriggerOffsetAmount.HasValue && schedule.TriggerOffsetAmount.Value != 0)
+                {
+                    if(schedule.TriggerOffsetAmount.Value < 0)
+                    {
+                        triggerString.Append($" {schedule.TriggerOffsetAmount.Value * -1} {schedule.TriggerOffsetAmountTimeIntervalUnit} before");
+                    }
+                    else
+                    {
+                        triggerString.Append($" {schedule.TriggerOffsetAmount.Value} {schedule.TriggerOffsetAmountTimeIntervalUnit} after");
+                    }
+
+                }
+
+                triggerString.Append($" {schedule.TriggerType}");
+
+                break;
+        }
+
+        return triggerString.ToString();
     }
 
     private async Task RunScheduleNow(Schedule schedule)

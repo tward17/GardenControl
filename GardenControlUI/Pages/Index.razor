@@ -1,11 +1,7 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
 <div class="row">
-    <div class="col-sm-12 col-md-6">
+    <div class="col-sm-12 col-md-4 mb-3">
         <div class="card">
             <div class="card-header">
                 <h4>Relays</h4>
@@ -30,7 +26,7 @@ Welcome to your new app.
             </div>
         </div>
     </div>
-    <div class="col-sm-12 col-md-6">
+    <div class="col-sm-12 col-md-4 mb-3">
         <div class="card">
             <div class="card-header">
                 <h4>Float Sensors</h4>
@@ -55,9 +51,7 @@ Welcome to your new app.
             </div>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-sm-12 col-md-6">
+    <div class="col-sm-12 col-md-4 mb-3">
         <div class="card">
             <div class="card-header">
                 <h4>DS18B20 Thermometers</h4>
@@ -83,11 +77,36 @@ Welcome to your new app.
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h4>Video Feeds</h4>
+            </div>
+            <div class="card-body">
+                @if (videoFeeds == null)
+                {
+                    <span>Loading Video Feeds...</span>
+                }
+                else
+                {
+                    @foreach (var videoFeed in videoFeeds)
+                    {
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item" src="@videoFeed.FeedUrl"></iframe>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 @code{
     private ICollection<GardenControlCore.Models.ControlDevice> relays;
     private ICollection<GardenControlCore.Models.ControlDevice> floatSensors;
     private ICollection<GardenControlCore.Models.ControlDevice> ds18b20Thermometers;
+    private ICollection<VideoFeed> videoFeeds;
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,5 +136,7 @@ Welcome to your new app.
                 Alias = cd.Alias,
                 DeviceTypeId = GardenControlCore.Enums.DeviceType.DS18B20
             }).ToList();
+
+        videoFeeds = await client.VideoFeedsGetAllAsync();
     }
 }

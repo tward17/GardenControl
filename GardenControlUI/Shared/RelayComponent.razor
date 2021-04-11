@@ -29,9 +29,9 @@
     {
         timer = new Timer(async _ =>
         {
-            await InvokeAsync(() =>
+            await InvokeAsync(async () =>
             {
-                GetIsRelayOn();
+                await GetIsRelayOn();
                 StateHasChanged();
             });
         }, null, 0, 500);

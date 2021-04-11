@@ -73,8 +73,18 @@
                                         <label for="serial-number-input">Serial Number</label>
                                         <input type="text" class="form-control" id="serial-number-input" @bind="@controlDevice.SerialNumber" placeholder="The serial number of the device if it has one, for 1-wire protocol" aria-describedby="serial-helptext">
                                         <small id="serial-helptext" class="text-muted">
-                                            Some devices require a specific serial number to identify which to read from, such as the DS18B20 sensor which uses the 1-wire protocol. You can find serial numbers by clicking <a href="#>" here></a>
+                                            Some devices require a specific serial number to identify which to read from, such as the DS18B20 sensor which uses the 1-wire protocol. You can find serial numbers by clicking <button type="button" class="btn btn-link" @onclick="GetSerialNumbers">here</button>
                                         </small>
+                                        @if (SerialNumbers.Any())
+                                        {
+                                            <p>
+                                                Serial Numbers:
+                                                @foreach(var serialNumber in SerialNumbers)
+                                                {
+                                                    <br />@serialNumber
+                                                }
+                                            </p>
+                                        }
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -101,8 +111,24 @@
 
 
 @code {
-    ControlDevice controlDevice = new ControlDevice { DeviceTypeId = DeviceType.Relay };
+    ControlDevice controlDevice;
+    List<string> SerialNumbers;
 
+    protected override async Task OnInitializedAsync()
+    {
+        controlDevice = new ControlDevice { DeviceTypeId = DeviceType.Relay };
+        SerialNumbers = new List<string>();
+    }
+
+    private async void GetSerialNumbers()
+    {
+        if (controlDevice.GpioPinNumber.HasValue)
+        {
+            swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+            var result = client.SerialNumbersAsync(controlDevice.GpioPinNumber.Value).Result;
+            SerialNumbers = result.ToList();
+        }
+    }
 
     private void SaveControlDevice()
     {
