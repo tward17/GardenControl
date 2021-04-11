@@ -14,10 +14,10 @@ using System.Threading.Tasks;
 
 namespace GardenControlServices
 {
-    public class scheduleService : IScheduleService
+    public class ScheduleService : IScheduleService
     {
         private IControlDeviceRepository _controlDeviceRepository { get; init; }
-        private ILogger<scheduleService> _logger { get; init; }
+        private ILogger<ScheduleService> _logger { get; init; }
         private IScheduleRepository _scheduleRepository { get; init; }
         private IMapper _mapper { get; init; }
         private RelayService _relayService { get; init; }
@@ -27,8 +27,8 @@ namespace GardenControlServices
 
         private List<TaskAction> _TaskActionsList { get; init; }
 
-        public scheduleService(IControlDeviceRepository controlDeviceRepository,
-            ILogger<scheduleService> logger, 
+        public ScheduleService(IControlDeviceRepository controlDeviceRepository,
+            ILogger<ScheduleService> logger, 
             IScheduleRepository scheduleRepository, 
             IMapper mapper,
             RelayService relayService,
@@ -230,6 +230,33 @@ namespace GardenControlServices
             await _scheduleRepository.UpdateScheduleNextRunTimeAsync(id, nextRunDateTime);
         }
 
+        public async Task RunPendingSchedules()
+        {
+            var pendingSchedules = await GetDueSchedulesAsync();
+
+            if (!pendingSchedules.Any())
+                return;
+
+            foreach (var schedule in pendingSchedules)
+            {
+                await RunSchedule(schedule);
+            }
+        }
+
+        public async Task RunSchedule(Schedule schedule)
+        {
+            if (!schedule.ScheduleTasks.Where(x => x.IsActive).Any())
+                return;
+
+            foreach (var task in schedule.ScheduleTasks.Where(x => x.IsActive))
+            {
+                await PerformScheduleTaskAction(task.ScheduleTaskId);
+            }
+
+            // once tasks are completed, update the next run time value for the schedule
+            await UpdateScheduleNextRunTimeAsync(schedule.ScheduleId, CalculateNextRunTime(schedule));
+        }
+
         #endregion
 
         #region Schedule Tasks
@@ -377,8 +404,6 @@ namespace GardenControlServices
                     await FloatSensorReadingTask(scheduleTask.ControlDevice.ControlDeviceId);
                     break;
             }
-
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -395,7 +420,7 @@ namespace GardenControlServices
             var currentDateTime = DateTime.Now;
             switch (schedule.TriggerType)
             {
-                case GardenControlCore.Enums.TriggerType.TimeOfDay:
+                case TriggerType.TimeOfDay:
                     nextRunTime = currentDateTime.Date
                             .AddHours(schedule.TriggerTimeOfDay.Value.Hour)
                             .AddMinutes(schedule.TriggerTimeOfDay.Value.Minute);
@@ -407,11 +432,15 @@ namespace GardenControlServices
                     }
                     
                     break;
-                case GardenControlCore.Enums.TriggerType.Interval:
+                case TriggerType.Interval:
 
                     if(schedule.NextRunDateTime != DateTime.MinValue && schedule.NextRunDateTime <= currentDateTime)
                     {
                         nextRunTime = GetAdjustedTime(schedule.NextRunDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
+                        
+                        // next run time is still in the past, so set to now, plus interval amount
+                        if (nextRunTime < currentDateTime)
+                            nextRunTime = GetAdjustedTime(currentDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
                     }
                     else if(schedule.NextRunDateTime > currentDateTime)
                     {
@@ -423,7 +452,7 @@ namespace GardenControlServices
                     }
 
                     break;
-                case GardenControlCore.Enums.TriggerType.Sunrise:
+                case TriggerType.Sunrise:
                     // TODO: implement sunrise check
                     // Get Sunrise for today
                     // If Sunrise today is in the past
@@ -431,7 +460,7 @@ namespace GardenControlServices
                     // else
                         // Set sunrise for today as the value
                     break;
-                case GardenControlCore.Enums.TriggerType.Sunset:
+                case TriggerType.Sunset:
                     // TODO: implement sunset check
                     // Get Sunset for today
                     // If Sunset today is in the past
@@ -500,7 +529,8 @@ namespace GardenControlServices
             {
                 ControlDeviceId = controlDeviceId,
                 MeasurementValue = temperatureReading.TemperatureC,
-                MeasurementDateTime = temperatureReading.ReadingDateTime
+                MeasurementDateTime = temperatureReading.ReadingDateTime,
+                MeasurementUnit = GardenControlCore.Enums.MeasurementUnit.Celcius
             };
 
             await _measurementService.InsertMeasurementAsync(measurement);
@@ -508,7 +538,17 @@ namespace GardenControlServices
 
         private async Task FloatSensorReadingTask(int controlDeviceId)
         {
-            throw new NotImplementedException();
+            var floatStateReading = await _floatSensorService.GetFloatSensorState(controlDeviceId);
+
+            var measurement = new Measurement
+            {
+                ControlDeviceId = controlDeviceId,
+                MeasurementValue = (floatStateReading == FloatSensorState.High ? 1 : 0),
+                MeasurementDateTime = DateTime.Now,
+                MeasurementUnit = GardenControlCore.Enums.MeasurementUnit.Boolean
+            };
+
+            await _measurementService.InsertMeasurementAsync(measurement);
         }
 
         public List<TaskAction> GetTaskActions()
@@ -516,6 +556,7 @@ namespace GardenControlServices
             return _TaskActionsList;
         }
 
+        
         #endregion
 
     }

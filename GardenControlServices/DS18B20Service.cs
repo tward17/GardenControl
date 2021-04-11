@@ -22,9 +22,9 @@ namespace GardenControlServices
             _logger = logger;
         }
 
-        public async Task<TemperatureReading> GetTemperatureReading(int id)
+        public async Task<TemperatureReading> GetTemperatureReading(int controlDeviceId)
         {
-            var controlDevice = await _controlDeviceService.GetDeviceAsync(id);
+            var controlDevice = await _controlDeviceService.GetDeviceAsync(controlDeviceId);
 
             ValidateControlDevice(controlDevice);
 

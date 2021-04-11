@@ -132,6 +132,42 @@ namespace GardenControlApi.Controllers
             return scheduleTasks.ToList();
         }
 
+        [HttpGet("{id}/Run", Name = "ScheduleRunNowById")]
+        public async Task<ActionResult> RunScheduleNowById(int id)
+        {
+            if (!(await ScheduleExists(id)))
+                return NotFound();
+
+            var schedule = await _scheduleService.GetScheduleAsync(id);
+            try
+            {
+                await _scheduleService.RunSchedule(schedule);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("RunPendingSchedules", Name = "SchedulesRunPending")]
+        public async Task<ActionResult> RunPendingSchdedules()
+        {
+            try
+            {
+                await _scheduleService.RunPendingSchedules();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return Ok();
+        }
+
         private async Task<bool> ScheduleExists(int id)
         {
             if (await _scheduleService.GetScheduleAsync(id) != null)

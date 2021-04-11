@@ -95,14 +95,14 @@ Welcome to your new app.
         var controlDevices = await client.ControlDeviceGetAllAsync();
 
 
-        relays = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.Relay)
+        relays = controlDevices.Where(cd => cd.DeviceTypeId == DeviceType.Relay)
             .Select(cd => new GardenControlCore.Models.ControlDevice {
                 ControlDeviceId = cd.ControlDeviceId,
                 Alias = cd.Alias,
                 DeviceTypeId = GardenControlCore.Enums.DeviceType.Relay
             }).ToList();
 
-        floatSensors = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.FloatSensor)
+        floatSensors = controlDevices.Where(cd => cd.DeviceTypeId == DeviceType.FloatSensor)
             .Select(cd => new GardenControlCore.Models.ControlDevice
             {
                 ControlDeviceId = cd.ControlDeviceId,
@@ -110,7 +110,7 @@ Welcome to your new app.
                 DeviceTypeId = GardenControlCore.Enums.DeviceType.FloatSensor
             }).ToList();
 
-        ds18b20Thermometers = controlDevices.Where(cd => (int)cd.DeviceTypeId == (int)GardenControlCore.Enums.DeviceType.DS18B20)
+        ds18b20Thermometers = controlDevices.Where(cd => cd.DeviceTypeId == DeviceType.DS18B20)
             .Select(cd => new GardenControlCore.Models.ControlDevice
             {
                 ControlDeviceId = cd.ControlDeviceId,

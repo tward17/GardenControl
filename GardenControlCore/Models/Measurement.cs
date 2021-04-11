@@ -11,13 +11,11 @@ namespace GardenControlCore.Models
     {
         public long MeasurementId { get; init; }
 
-        public int ControlDeviceId { get; init; }
-
-        public virtual ControlDevice ControlDevice { get; set; }
+        public int ControlDeviceId { get; set; }
 
         public double MeasurementValue { get; set; }
 
-        public MeasurementUnit MeasurementUnit { get; set; }
+        public Enums.MeasurementUnit MeasurementUnit { get; set; }
 
         public DateTime MeasurementDateTime { get; set; }
     }

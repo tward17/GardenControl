@@ -44,6 +44,7 @@ namespace GardenControlApi
                 mc.AddProfile(new ControlDeviceDtoProfile());
                 mc.AddProfile(new DS18B20DtoProfile());
                 mc.AddProfile(new AppSettingDtoProfile());
+                mc.AddProfile(new MeasurementProfile());
                 mc.AddProfile(new MeasurementDtoProfile());
                 mc.AddProfile(new MeasurementUnitDtoProfile());
                 mc.AddProfile(new ScheduleProfile());
@@ -57,17 +58,17 @@ namespace GardenControlApi
             IMapper mapper = mapperConfig.CreateMapper();
 
             services.AddSingleton(mapper);
-#if DEBUG
+
             services.AddDbContext<GardenControlContext>(
                options => options.UseSqlite(Configuration.GetConnectionString("GardenControlConnection"), builder =>
                    builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
             ));
-#else
-            services.AddDbContext<GardenControlContext>(
-               options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
-                   builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
-            ));
-#endif
+
+            // connection used when hosted in Docker
+            //services.AddDbContext<GardenControlContext>(
+            //   options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
+            //       builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
+            //));
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.Converters.Add(new StringEnumConverter()));
@@ -90,7 +91,7 @@ namespace GardenControlApi
             services.AddTransient<IMeasurementRepository, MeasurementRepository>();
             services.AddTransient<IMeasurementService, MeasurementService>();
             services.AddTransient<IScheduleRepository, ScheduleRepository>();
-            services.AddTransient<IScheduleService, scheduleService>();
+            services.AddTransient<IScheduleService, ScheduleService>();
             services.AddTransient<IVideoFeedsRepository, VideoFeedRepository>();
             services.AddTransient<IVideoFeedsService, VideoFeedsService>();
             services.AddTransient<DS18B20Service>();
