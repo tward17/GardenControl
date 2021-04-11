@@ -47,22 +47,13 @@ namespace GardenControlDaemon
         {
             var baseUrl = string.Empty;
 
-#if DEBUG
             baseUrl = _configuration.GetValue<string>("ApiEndPointBaseUrl");
-#else
-            baseUrl = Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING");
-#endif
 
             if (string.IsNullOrWhiteSpace(baseUrl))
-                baseUrl = "http://jonpi.lan:1708";
+                baseUrl = "http://jonpi.lan:5000";
             try
             {
                 var result = await _httpClient.GetAsync($"{baseUrl}/api/Schedule/RunPendingSchedules");
-
-                if (!result.IsSuccessStatusCode)
-                {
-                    var x = "this";
-                }
             }
             catch (Exception)
             {

@@ -9,6 +9,7 @@ namespace GardenControlCore.Enums
     public enum MeasurementUnit
     {
         Celcius,
-        Fahrenheit
+        Fahrenheit,
+        Boolean
     }
 }

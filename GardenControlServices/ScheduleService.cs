@@ -420,7 +420,7 @@ namespace GardenControlServices
             var currentDateTime = DateTime.Now;
             switch (schedule.TriggerType)
             {
-                case GardenControlCore.Enums.TriggerType.TimeOfDay:
+                case TriggerType.TimeOfDay:
                     nextRunTime = currentDateTime.Date
                             .AddHours(schedule.TriggerTimeOfDay.Value.Hour)
                             .AddMinutes(schedule.TriggerTimeOfDay.Value.Minute);
@@ -432,11 +432,15 @@ namespace GardenControlServices
                     }
                     
                     break;
-                case GardenControlCore.Enums.TriggerType.Interval:
+                case TriggerType.Interval:
 
                     if(schedule.NextRunDateTime != DateTime.MinValue && schedule.NextRunDateTime <= currentDateTime)
                     {
                         nextRunTime = GetAdjustedTime(schedule.NextRunDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
+                        
+                        // next run time is still in the past, so set to now, plus interval amount
+                        if (nextRunTime < currentDateTime)
+                            nextRunTime = GetAdjustedTime(currentDateTime, schedule.IntervalAmount.Value, schedule.IntervalAmountTimeIntervalUnit.Value);
                     }
                     else if(schedule.NextRunDateTime > currentDateTime)
                     {
@@ -448,7 +452,7 @@ namespace GardenControlServices
                     }
 
                     break;
-                case GardenControlCore.Enums.TriggerType.Sunrise:
+                case TriggerType.Sunrise:
                     // TODO: implement sunrise check
                     // Get Sunrise for today
                     // If Sunrise today is in the past
@@ -456,7 +460,7 @@ namespace GardenControlServices
                     // else
                         // Set sunrise for today as the value
                     break;
-                case GardenControlCore.Enums.TriggerType.Sunset:
+                case TriggerType.Sunset:
                     // TODO: implement sunset check
                     // Get Sunset for today
                     // If Sunset today is in the past

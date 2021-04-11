@@ -58,17 +58,17 @@ namespace GardenControlApi
             IMapper mapper = mapperConfig.CreateMapper();
 
             services.AddSingleton(mapper);
-#if DEBUG
+
             services.AddDbContext<GardenControlContext>(
                options => options.UseSqlite(Configuration.GetConnectionString("GardenControlConnection"), builder =>
                    builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
             ));
-#else
-            services.AddDbContext<GardenControlContext>(
-               options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
-                   builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
-            ));
-#endif
+
+            // connection used when hosted in Docker
+            //services.AddDbContext<GardenControlContext>(
+            //   options => options.UseSqlite(Environment.GetEnvironmentVariable("DATABASE_CONNECTIONSTRING"), builder =>
+            //       builder.MigrationsAssembly(typeof(Startup).Assembly.FullName)
+            //));
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.Converters.Add(new StringEnumConverter()));

@@ -17,7 +17,7 @@
                             15 minutes after sunrise.
                         </p>
                         <div class="btn-group">
-                            <a href="scheduler/create" class="btn btn-outline-primary"><span class="oi oi-plus" aria-hidden="true"></span> Add New Schedule</a>
+                            <button class="btn btn-outline-success" @onclick="RefreshSchedules"><span class="oi oi-reload" aria-hidden="true"></span> Refresh</button><a href="scheduler/create" class="btn btn-outline-primary"><span class="oi oi-plus" aria-hidden="true"></span> Add New Schedule</a>
                         </div>
                     </div>
                 </div>
@@ -120,6 +120,15 @@ else
         schedules = await client.ScheduleGetAllAsync();
 
         TaskActions = await client.TaskActionGetAllAsync();
+    }
+
+    private async Task RefreshSchedules()
+    {
+        swaggerClient client = new(Configuration["APIBaseUrl"], Http);
+        triggerTypes = await client.TriggerTypeGetAllAsync();
+
+        schedules = await client.ScheduleGetAllAsync();
+        this.StateHasChanged();
     }
 
     private async Task RunScheduleNow(Schedule schedule)
